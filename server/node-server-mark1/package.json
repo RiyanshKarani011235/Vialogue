@@ -1,0 +1,15 @@
+{
+  "name": "node-server-mark1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "node-server-with-mongo-db-mark1.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "mongoose": "^4.7.5",
+    "node-parse-api": "^0.3.8"
+  }
+}

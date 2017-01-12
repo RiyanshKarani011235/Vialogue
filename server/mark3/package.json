@@ -1,0 +1,11 @@
+{
+  "name": "mark3",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app/index.js",
+  "scripts": {
+    "test": "node ./config/test.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
