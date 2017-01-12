@@ -8,7 +8,7 @@ exec('clear');
 // Instantiate a Mocha instance.
 var mocha = new Mocha();
 
-var testDir = '../'
+var testDir = './app/'
 
 var parseDirectory = function(dir) {
     fs.readdirSync(dir).filter(function(file) {
