@@ -26,5 +26,5 @@ var tryParseJSON = function(jsonString){
 };
 
 module.exports = {
-    tryParseJSON
+    tryParseJSON,
 }
