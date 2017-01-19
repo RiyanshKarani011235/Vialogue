@@ -28,6 +28,14 @@ var PARSE_OBJECT_NOT_FOUND_ERROR = function(id, className) {
 	return Error('Parse Object with id : \"' + id + '\" for Class : \"' + className + '\" not found');
 }
 
+// Throw Error Strings
+var CANNOT_SET_OBJECT_PROPERTY_ERROR = function(object, property) {
+	return Error('Property \"' + property + '\" of object \"' + object + '\" cannot be set');
+}
+
+/**
+ *
+ */
 class Project extends Parse.Object{
 
 	constructor(jsonString, initialize=true) {
@@ -49,12 +57,11 @@ class Project extends Parse.Object{
 			});
 		}
 
-		var this_ = this;
 		return new Promise((fulfill, reject) => {
-			this_.parseJson().then(
+			this.parseJson().then(
 				() => {
 					// return the initialized object
-					fulfill(this_);
+					fulfill(this);
 				}, (error) => {
 					reject(error);
 				}
@@ -95,9 +102,11 @@ class Project extends Parse.Object{
 	 * 		]
 	 * }
 	 *
-	 * @returns {Promise} : 
-	 * 		fulfilled iff the JSON schema is correct (as per the above schema)
-	 * 		rejected if any errors caught or schema invalid
+	 * @return {Promise} : 
+	 * 		fulfilled iff the JSON schema is correct (as per the above schema), returning
+	 * 			this Project instance, with all variables initialized according to the values
+	 * 			in the JSON
+	 * 		rejected if any errors caught or schema invalid, returning the error message
 	 */
 	parseJson() {
 		return new Promise((fulfill, reject) => {
@@ -139,11 +148,12 @@ class Project extends Parse.Object{
 	 * 							   to which the fetched Parse Object (if exists) is assigned
 	 * @param {boolean} saveReferencedParseObject : if true, the fetched Parse Object is saved
 	 * 							   assigning it to the instanceVariable
-	 * @return {boolean} true if
-	 *		fieldName field exists in the JSON and
+	 * @return {Promise} : 
+	 * 		fulfilled iff fieldName field exists in the JSON and
 	 * 			value is null or
-	 * 			value is String and corresponsd to a parse object in the "className" class of
+	 * 			value is String and corresponds to a parse object in the "className" class of
 	 * 			in the database
+	 * 		rejected otherwise, returning the error message
 	 */
 	validateIdField(fieldName, className, instanceVariableName, saveReferencedParseObject=true) {
 		return new Promise((fulfill, reject) => {
@@ -172,15 +182,19 @@ class Project extends Parse.Object{
 
 			query.get(id).then(
 				(result) => {
-					// add instance variable (this.instanceVariableName = id)
+					// add instance variable (this._instanceVariableName = id)
 					if(saveReferencedParseObject) {
-						eval('this.' + instanceVariableName + ' = result');
+						eval('this._' + instanceVariableName + ' = result');
+						eval('console.log(this._' + instanceVariableName + ')');
 
-						// var str = 'Object.defineProperty(this, \"' + instanceVariable + '\", ' + 
-						// 	'{get: () => {return this.__' + instanceVariableName + '}, ' + 
-						// 	'{set: () => {return ' + 'Error(' + CANNOT_SET_OBJECT_PROPERTY_ERROR.message + ')}}';
-						// console.log(str);
-						// eval(str);
+						// make the instanceVariable not settable
+						var str = 'Object.defineProperty(this, \"' + instanceVariableName + '\", ' + 
+							'{get: () => {return this._' + instanceVariableName + '}, ' + 
+							'set: () => {' + 
+								'var error = CANNOT_SET_OBJECT_PROPERTY_ERROR(\'' + projectConfig.CLASS_NAME + '\', \'' + instanceVariableName + '\');' + 
+								'console.log(error);' + 
+							'throw(error)}});';
+						eval(str);
 					}
 					fulfill();
 				}, (error) => {
@@ -197,12 +211,32 @@ class Project extends Parse.Object{
 
 	}
 
+	/*
+	 * validates the projectConfig.ID_FIELD field
+	 * look at "validateIdField" method for description
+	 */
 	validateId() {
-		var this_ = this;
 		return new Promise((fulfill, reject) => {
-			this_.validateIdField(projectConfig.ID_FIELD, projectConfig.CLASS_NAME, 'id', false).then(
+			this.validateIdField(projectConfig.ID_FIELD, projectConfig.CLASS_NAME, 'id', false).then(
 				() => {
-					this_.id = this_.object[projectConfig.ID_FIELD];
+
+					// CANNOT DO THIS, BECAUSE WHEN USING THE ParseObject.set METHOD, 
+					// PARSE REASSIGNS THE ID FIELD. 
+					// FOR EVERY OTHER FIELD, PARSE CREATES A NEW ARRAY WITH KEY-VALUE PAIRS
+					// TO BE SAVED / UPDATED IN THE DATABASE (WIERD!)
+
+					// this._id = this.object[projectConfig.ID_FIELD];
+					// Object.defineProperty(this, 'id', {
+					// 	get: () => {
+					// 		return this._id;
+					// 	}, set: () => {
+					// 		var error = CANNOT_SET_OBJECT_PROPERTY_ERROR(projectConfig.CLASS_NAME, 'id');
+					// 		console.log(error);
+					// 		throw(error);
+					// 	}
+					// });
+
+					this.id = this.object[projectConfig.ID_FIELD];
 					fulfill();
 				}, (error) => {
 					reject(error);
@@ -212,26 +246,53 @@ class Project extends Parse.Object{
 		});
 	}
 
+	/*
+	 * validates the projectConfig.PARENT_FIELD field
+	 * look at "validateIdField" method for description
+	 */
 	validateParentId() {
-		return this.validateIdField(projectConfig.PARENT_FIELD, projectConfig.CLASS_NAME, projectConfig.PARENT_FIELD); // ADD __ before every name
+		return this.validateIdField(projectConfig.PARENT_FIELD, projectConfig.CLASS_NAME, projectConfig.PARENT_FIELD);
 	}
 
+	/*
+	 * validates the projectConfig.ORIGINAL_PARENT_FIELD field
+	 * look at "validateIdField" method for description
+	 */
 	validateOriginalParentId() {
 		return this.validateIdField(projectConfig.ORIGINAL_PARENT_FIELD, projectConfig.CLASS_NAME, projectConfig.ORIGINAL_PARENT_FIELD);
 	}
 
+	/*
+	 * validates the projectConfig.CATEGORY_FIELD field
+	 * look at "validateIdField" method for description
+	 */
 	validateCategoryId() {
 		return this.validateIdField(projectConfig.CATEGORY_FIELD, categoryConfig.CLASS_NAME, projectConfig.CATEGORY_FIELD);
 	}
 
+	/*
+	 * validates the projectConfig.LANGUAGE_FIELD field
+	 * look at "validateIdField" method for description
+	 */
 	validateLanguageId() {
 		return this.validateIdField(projectConfig.LANGUAGE_FIELD, languageConfig.CLASS_NAME, projectConfig.LANGUAGE_FIELD);
 	}
 
+	/*
+	 * validates the projectConfig.AUTHOR_FIELD field
+	 * look at "validateIdField" method for description
+	 */
 	validateAuthorId() {
 		return this.validateIdField(projectConfig.AUTHOR_FIELD, userConfig.CLASS_NAME, projectConfig.AUTHOR_FIELD);
 	}
 
+	/*
+	 * validates the projectConfig.NAME_FIELD field
+	 * @return {Promise} : 
+	 * 		fulfilled iff projectConfig.NAME_FIELD field exists in the JSON and
+	 * 		value is String
+	 * 		rejected otherwise, returning the error message
+	 */
 	validateName() {
 		return new Promise((fulfill, reject) => {
 
@@ -250,14 +311,29 @@ class Project extends Parse.Object{
 			// TODO: CHECK FOR SPECIAL CHARACTERS IN THE STRING
 			// use validate.js and RegEx for doing this
 
-			this.name = name;
+			this._name = name;
+			Object.defineProperty(this, 'name', {
+				get: () => {
+					return this._name;
+				}, set: () => {
+					var error = CANNOT_SET_OBJECT_PROPERTY_ERROR(projectConfig.CLASS_NAME, 'name');
+					console.log(error);
+					throw(error);
+				}
+			});
 			fulfill();
 
 		});
 	}
 
+	/*
+	 * validates the projectConfig.IS_DUBBED_FIELD field
+	 * @return {Promise} : 
+	 * 		fulfilled iff projectConfig.IS_DUBBED_FIELD field exists in the JSON and
+	 * 		value is boolean
+	 * 		rejected otherwise, returning the error message
+	 */
 	validateIsDubbed() {
-
 		return new Promise((fulfill, reject) => {
 
 			var isDubbed = this.object[projectConfig.IS_DUBBED_FIELD];
@@ -272,15 +348,34 @@ class Project extends Parse.Object{
 				reject(TYPE_NOT_CORRECT_ERROR(projectConfig.IS_DUBBED_FIELD, typeof(isDubbed), 'boolean'));
 			}
 
-			this.isDubbed = isDubbed;
+			this._isDubbed = isDubbed;
+			Object.defineProperty(this, 'isDubbed', {
+				get: () => {
+					return this._isDubbed;
+				}, set: () => {
+					var error = CANNOT_SET_OBJECT_PROPERTY_ERROR(projectConfig.CLASS_NAME, 'isDubbed');
+					console.log(error);
+					throw(error);
+				}
+			});
 			fulfill();
 
 		});
 		
 	}
 
+	/*
+	 * validates the projectConfig.RESOLUTION_*_FIELD fields
+	 * @param {String} resolutionField : name of the field to be validated
+	 * @param {String} instanceVariableName : the name of instance variable of this class
+	 * 		to which the resolution value is assigned
+	 * 
+	 * @return {Promise} : 
+	 * 		fulfilled iff resolutionField field exists in the JSON and
+	 * 		value is integer
+	 * 		rejected otherwise, returning the error message
+	 */
 	validateResolution(resolutionField, instanceVariableName) {
-
 		return new Promise((fulfill, reject) => {
 
 			var resolution = this.object[resolutionField];
@@ -296,20 +391,44 @@ class Project extends Parse.Object{
 			}
 
 			// TODO: CHECK IF RESOLUTION IS VALID (i.e not negative, ...)
-			eval('this.' + instanceVariableName + ' = resolution;');
+
+			eval('this._' + instanceVariableName + ' = resolution;');
+
+			var str = 'Object.defineProperty(this, \'' + instanceVariableName + '\', ' + 
+				'{get: () => {return this._' + instanceVariableName + '}, ' + 
+				'set: () => {' + 
+					'var error = CANNOT_SET_OBJECT_PROPERTY_ERROR(\'' + projectConfig.CLASS_NAME + '\', \'' + instanceVariableName + '\');' + 
+					'console.log(error);' + 
+				'throw(error)}});';
+			eval(str);
 			fulfill();
 
 		});
 	} 
 
+	/*
+	 * validates the projectConfig.RESOLUTION_X field
+	 * look at "validateResolution" method for description
+	 */
 	validateResolutionX() {
 		return this.validateResolution(projectConfig.RESOLUTION_X_FIELD, 'resolutionX');
 	}
 
+	/*
+	 * validates the projectConfig.RESOLUTION_Y field
+	 * look at "validateResolution" method for description
+	 */
 	validateResolutionY() {
 		return this.validateResolution(projectConfig.RESOLUTION_Y_FIELD, 'resolutionY');
 	}
 
+	/*
+	 * validates the projectConfig.SLIDE_ORDERING_SEQUENCE_FIELD field
+	 * @returns {Promise} : 
+	 * 		fulfilled iff projectConfig.SLIDE_ORDERING_SEQUENCE_FIELD field exists in JSON and
+	 * 		the value is an integer Array
+	 * 		rejected otherwise, returning the error message
+	 */
 	validateSlideOrderingSequence() {
 		return new Promise((fulfill, reject) => {
 
@@ -333,7 +452,17 @@ class Project extends Parse.Object{
 			}
 
 			// TODO: check if all the corresponding slides present 
-			this.slideOrderingSequence = slideOrderingSequence;
+
+			this._slideOrderingSequence = slideOrderingSequence;
+			Object.defineProperty(this, 'slideOrderingSequence', {
+				get: () => {
+					return this._slideOrderingSequence;
+				}, set: () => {
+					var error = CANNOT_SET_OBJECT_PROPERTY_ERROR(projectConfig.CLASS_NAME, 'slideOrderingSequence');
+					console.log(error);
+					throw(error);
+				}
+			});
 			fulfill();
 		});
 	}
@@ -357,6 +486,7 @@ class Project extends Parse.Object{
 		this.set('resolution_x', this.resolutionX);
 		this.set('resolution_y', this.resolutionY);
 		this.set('slide_ordering_sequence', this.slideOrderingSequence);
+
 		return super.save();
 	}
 

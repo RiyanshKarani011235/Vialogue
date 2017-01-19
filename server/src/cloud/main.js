@@ -10,6 +10,11 @@ Parse.Cloud.define('uploadJson', function(request, response) {
 			p = result;
 			// console.log(result);
 			p.save().then(() => {
+				console.log(p.parent);
+				// p.parent = 'hello';
+				console.log(p.parent);
+				console.log('successfully saved');
+				console.log(p.validateParentId());
 				response.success('successfully saved');
 				}, function(error) {
 					console.log(error);
