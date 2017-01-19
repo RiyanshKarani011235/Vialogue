@@ -21,7 +21,9 @@ var tryParseJSON = function(jsonString){
         if (o && typeof o === "object") {
             return o;
         }
-    } catch (e) {}
+    } catch (e) {
+        console.error(e);
+    }
     return false;
 };
 

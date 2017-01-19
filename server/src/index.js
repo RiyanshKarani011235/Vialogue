@@ -12,9 +12,9 @@ try {
 	throw(err);
 }
 
-var databaseUri = config.MONGO_DB_URL;
+// process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 var api = new ParseServer({
-	databaseURI: databaseUri,
+	databaseURI: config.MONGO_DB_URL,
 	cloud: config.CLOUD_URL,
 	appId: 'app',
 	masterKey: 'master',
@@ -23,6 +23,9 @@ var api = new ParseServer({
 		classNames: ["posts", "comments"]
 	}
 });
+
+var Parse = require('parse/node');
+Parse.initialize('app', 'master');
 
 // instantiate express route for parse
 var app = express();

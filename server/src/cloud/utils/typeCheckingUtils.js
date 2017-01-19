@@ -15,6 +15,14 @@ function isInt(value) {
 	return !isNaN(value) && (function(x) { return (x | 0) === x; })(parseFloat(value))
 }
 
+function isString(value) {
+	return typeof(value) === 'string';
+}
+
+function isBoolean(value) {
+	return typeof(value) === 'boolean';
+}
+
 module.exports = {
 	isInt
 }

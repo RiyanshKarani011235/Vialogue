@@ -2,9 +2,10 @@
   "name": "mark3",
   "version": "1.0.0",
   "description": "",
-  "main": "app/index.js",
+  "main": "src/index.js",
   "scripts": {
-    "test": "node ./config/test.js"
+    "test": "node ./config/test.js",
+    "dev": "backpack"
   },
   "author": "",
   "license": "ISC",
@@ -13,6 +14,10 @@
     "chai": "^3.5.0",
     "express": "^4.14.0",
     "mocha": "^3.2.0",
-    "parse-server": "^2.3.2"
+    "parse-server": "^2.3.2",
+    "validate.js": "^0.11.1"
+  },
+  "devDependencies": {
+    "backpack-core": "0.0.7"
   }
 }
