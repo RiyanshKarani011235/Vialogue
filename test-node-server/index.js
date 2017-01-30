@@ -25,4 +25,4 @@ Parse.Cloud.run('uploadJson', json).then(
 	}, function(error) {
 		console.log(error);
 	}
-);	
+);							

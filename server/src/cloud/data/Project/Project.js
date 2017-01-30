@@ -1,6 +1,7 @@
 var fs = require('fs');
 var validate = require('validate.js');
 var jsonUtils = require('../../json/jsonUtils.js');
+var errorUtils = require('./errorUtils.js');
 
 var projectConfig = fs.readFileSync('./config/projectConfig.json');
 var categoryConfig = fs.readFileSync('./config/categoryConfig.json');
@@ -13,34 +14,55 @@ categoryConfig = jsonUtils.tryParseJSON(categoryConfig) || (() => {throw 'catego
 languageConfig = jsonUtils.tryParseJSON(languageConfig) || (() => {throw 'languageConfig.json is corrupted'})();
 userConfig = jsonUtils.tryParseJSON(userConfig) || (() => {throw 'userConfig.json is corrupted'})();
 
-// Reject Error Strings 
-var NOT_VALID_JSON_ERROR = function() {
-	return Error('JSON schema not valid');
-}
-var FIELD_NOT_PRESENT_ERROR = function(id) {
-	return Error('Could not find the following field in the JSON : \"' + id + '\"');
-}
-var TYPE_NOT_CORRECT_ERROR = function(id, foundType, expectedType) {
-	return Error('Incorrect type found for value corresponding to field : \"' + id + 
-		'\"\nExpected : \"' + expectedType + '\" but found : \"' + foundType + '\"');
-}
-var PARSE_OBJECT_NOT_FOUND_ERROR = function(id, className) {
-	return Error('Parse Object with id : \"' + id + '\" for Class : \"' + className + '\" not found');
-}
-
-// Throw Error Strings
-var CANNOT_SET_OBJECT_PROPERTY_ERROR = function(object, property) {
-	return Error('Property \"' + property + '\" of object \"' + object + '\" cannot be set');
-}
-
 /**
  *
  */
 class Project extends Parse.Object{
 
-	constructor(jsonString, initialize=true) {
-		// pass the classname to Parse.Object constructor
-		super(projectConfig.CLASS_NAME);
+	/**
+	 * @params
+	 * @returns {Promise} :
+	 * 		fulfilled iff
+	 * 			no validation requested or
+	 * 			validation successfull
+	 * 		rejected if
+	 * 			number of arguments not equal 1 or 2
+	 * 			arguments don't match required argument types
+	 * 			validation errors
+	 */
+	constructor(/* jsonString, initialize=true | ProjectparseObject */) {
+
+		if(arguments.length === 2) {
+			if(validate.isString(arguments[0]) && validate.isBoolean(arguments[1])) {
+				// pass the classname to Parse.Object constructor
+				super(projectConfig.CLASS_NAME);
+
+				// generate Project instance from a given json string
+				return this.constructorFromJsonString(arguments[0], arguments[1]);
+			}
+		} else if(arguments.length === 1) {
+			if(validate.isString(arguments[0])) {
+				// pass the classname to Parse.Object constructor
+				super(projectConfig.CLASS_NAME);
+
+				return this.constructorFromJsonString(arguments[0]);
+			} else if((arguments[0].constructor === ParseObjectSubclass) && (arguments[0].className === projectConfig.CLASS_NAME)) {
+				// pass the classname to Parse.Object constructor
+				super(projectConfig.CLASS_NAME);
+
+				return this.constructorFromParseObject(arguments[0]);
+			}
+		} else {
+			return new Promise((fulfill, reject) => {
+				reject(errorUtils.CONSTRUCTOR_INVALID_ARGUMENTS_ERROR(arguments));
+			});
+		}
+	}
+
+	/**
+	 * if JSON string is provided as input, then we will have to
+	 */
+	constructorFromJsonString(jsonString, initialize=true) {
 
 		if(!initialize) {
 			console.log('Project : constructor : not initializing');
@@ -53,7 +75,7 @@ class Project extends Parse.Object{
 		if(this.object === null) {
 			// json string not valid
 			return new Promise((fulfill, reject) => {
-				reject(NOT_VALID_JSON_ERROR());
+				reject(errorUtils.NOT_VALID_JSON_ERROR());
 			});
 		}
 
@@ -67,11 +89,138 @@ class Project extends Parse.Object{
 				}
 			);
 		});
+
+	}
+
+	constructorFromParseObject(parseObject) {
+		return new Promise((fulfill, reject) => {
+
+			try {
+				this._id = parseObject.get(projectConfig.ID_FIELD);
+				this._parent = parseObject.get(projectConfig.PARENT_FIELD);
+				this._originalParent = parseObject.get(projectConfig.PARENT_FIELD);
+				this._name = parseObject.get(projectConfig.NAME_FIELD);
+				this._isDubbed = parseObject.get(projectConfig.IS_DUBBED_FIELD);
+				this._category = parseObject.get(projectConfig.CATEGORY_FIELD);
+				this._langauge = parseObject.get(projectConfig.LANGUAGE_FIELD);
+				this._author = parseObject.get(projectConfig.AUTHOR_FIELD);
+				this._resolutionX = parseObject.get(projectConfig.RESOLUTION_X_FIELD);
+				this._resolutionY = parseObject.get(projectConfig.RESOLUTION_Y_FIELD);
+				this._slideOrderingSequence = parseObject.get(projectConfig.SLIDE_ORDERING_SEQUENCE_FIELD);
+
+				// TODO: SLIDES
+			} catch (error) {
+				reject(error);
+			}
+
+			// make all the attributes (except "id") not settable
+
+			Object.defineProperty(this, 'parent', {
+				get: () => {
+					return this._parent;
+				}, set: () => {
+					var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(projectConfig.CLASS_NAME, 'parent');
+					console.log(error);
+					throw error;
+				}
+			});
+
+			Object.defineProperty(this, 'originalParent', {
+				get: () => {
+					return this._originalParent;
+				}, set: () => {
+					var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(projectConfig.CLASS_NAME, 'originalParent');
+					console.log(error);
+					throw error;
+				}
+			});
+
+			Object.defineProperty(this, 'name', {
+				get: () => {
+					return this._name;
+				}, set: () => {
+					var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(projectConfig.CLASS_NAME, 'name');
+					console.log(error);
+					throw error;
+				}
+			});
+
+			Object.defineProperty(this, 'isDubbed', {
+				get: () => {
+					return this._isDubbed;
+				}, set: () => {
+					var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(projectConfig.CLASS_NAME, 'isDubbed');
+					console.log(error);
+					throw error;
+				}
+			});
+
+			Object.defineProperty(this, 'category', {
+				get: () => {
+					return this._category;
+				}, set: () => {
+					var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(projectConfig.CLASS_NAME, 'category');
+					console.log(error);
+					throw error;
+				}
+			});
+
+			Object.defineProperty(this, 'language', {
+				get: () => {
+					return this._language;
+				}, set: () => {
+					var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(projectConfig.CLASS_NAME, 'language');
+					console.log(error);
+					throw error;
+				}
+			});
+
+			Object.defineProperty(this, 'author', {
+				get: () => {
+					return this._author;
+				}, set: () => {
+					var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(projectConfig.CLASS_NAME, 'author');
+					console.log(error);
+					throw error;
+				}
+			});
+
+			Object.defineProperty(this, 'resolutionX', {
+				get: () => {
+					return this._resolutionX;
+				}, set: () => {
+					var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(projectConfig.CLASS_NAME, 'resolutionX');
+					console.log(error);
+					throw error;
+				}
+			});
+
+			Object.defineProperty(this, 'resolutionY', {
+				get: () => {
+					return this._resolutionY;
+				}, set: () => {
+					var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(projectConfig.CLASS_NAME, 'resolutionY');
+					console.log(error);
+					throw error;
+				}
+			});
+
+			Object.defineProperty(this, 'slideOrderingSequence', {
+				get: () => {
+					return this._slideOrderingSequence;
+				}, set: () => {
+					var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(projectConfig.CLASS_NAME, 'slideOrderingSequence');
+					console.log(error);
+					throw error;
+				}
+			});
+
+		});
 	}
 
 	/**
 	 * validates and parses this.jsonString
-	 * 
+	 *
 	 * {
 	 * 		id {String}: ...,
 	 * 		parent {String}: ...,
@@ -97,12 +246,12 @@ class Project extends Parse.Object{
 	 * 					video_url {String}: ...,
 	 * 					question_url {String}: ...
 	 * 				}
-	 * 			}, 
+	 * 			},
 	 * 			...
 	 * 		]
 	 * }
 	 *
-	 * @return {Promise} : 
+	 * @return {Promise} :
 	 * 		fulfilled iff the JSON schema is correct (as per the above schema), returning
 	 * 			this Project instance, with all variables initialized according to the values
 	 * 			in the JSON
@@ -142,13 +291,13 @@ class Project extends Parse.Object{
 
 	/**
 	 * @param {String} fieldName : id field to be validated
-	 * @param {String} className : Parse Class name pertaining to the saved Parse Object, 
+	 * @param {String} className : Parse Class name pertaining to the saved Parse Object,
 	 * 							   whose id is the value to this field
 	 * @param {String} instanceVariableName : the name of instance variable of this class
 	 * 							   to which the fetched Parse Object (if exists) is assigned
 	 * @param {boolean} saveReferencedParseObject : if true, the fetched Parse Object is saved
 	 * 							   assigning it to the instanceVariable
-	 * @return {Promise} : 
+	 * @return {Promise} :
 	 * 		fulfilled iff fieldName field exists in the JSON and
 	 * 			value is null or
 	 * 			value is String and corresponds to a parse object in the "className" class of
@@ -162,7 +311,7 @@ class Project extends Parse.Object{
 
 			// no such field
 			if(id === undefined) {
-				reject(FIELD_NOT_PRESENT_ERROR(fieldName));
+				reject(errorUtils.FIELD_NOT_PRESENT_ERROR(fieldName));
 			}
 
 			// if null, then valid
@@ -173,7 +322,7 @@ class Project extends Parse.Object{
 
 			// if type is not String, then invalid
 			if(typeof (id) !== 'string') {
-				reject(TYPE_NOT_CORRECT_ERROR(fieldName, typeof(id), 'String'));
+				reject(errorUtils.TYPE_NOT_CORRECT_ERROR(fieldName, typeof(id), 'String'));
 			}
 
 			// if object does not exist in the database, then invalid
@@ -188,19 +337,19 @@ class Project extends Parse.Object{
 						eval('console.log(this._' + instanceVariableName + ')');
 
 						// make the instanceVariable not settable
-						var str = 'Object.defineProperty(this, \"' + instanceVariableName + '\", ' + 
-							'{get: () => {return this._' + instanceVariableName + '}, ' + 
-							'set: () => {' + 
-								'var error = CANNOT_SET_OBJECT_PROPERTY_ERROR(\'' + projectConfig.CLASS_NAME + '\', \'' + instanceVariableName + '\');' + 
-								'console.log(error);' + 
-							'throw(error)}});';
+						var str = 'Object.defineProperty(this, \"' + instanceVariableName + '\", ' +
+							'{get: () => {return this._' + instanceVariableName + '}, ' +
+							'set: () => {' +
+								'var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(\'' + projectConfig.CLASS_NAME + '\', \'' + instanceVariableName + '\');' +
+								'console.log(error);' +
+							'throw error}});';
 						eval(str);
 					}
 					fulfill();
 				}, (error) => {
 					if(error.code === 101) {
 						// object with id "id" not found
-						reject(PARSE_OBJECT_NOT_FOUND_ERROR(id, className));
+						reject(errorUtils.PARSE_OBJECT_NOT_FOUND_ERROR(id, className));
 					} else {
 						reject(Error(error));
 					}
@@ -220,8 +369,8 @@ class Project extends Parse.Object{
 			this.validateIdField(projectConfig.ID_FIELD, projectConfig.CLASS_NAME, 'id', false).then(
 				() => {
 
-					// CANNOT DO THIS, BECAUSE WHEN USING THE ParseObject.set METHOD, 
-					// PARSE REASSIGNS THE ID FIELD. 
+					// CANNOT DO THIS, BECAUSE WHEN USING THE ParseObject.set METHOD,
+					// PARSE REASSIGNS THE ID FIELD.
 					// FOR EVERY OTHER FIELD, PARSE CREATES A NEW ARRAY WITH KEY-VALUE PAIRS
 					// TO BE SAVED / UPDATED IN THE DATABASE (WIERD!)
 
@@ -230,9 +379,9 @@ class Project extends Parse.Object{
 					// 	get: () => {
 					// 		return this._id;
 					// 	}, set: () => {
-					// 		var error = CANNOT_SET_OBJECT_PROPERTY_ERROR(projectConfig.CLASS_NAME, 'id');
+					// 		var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(projectConfig.CLASS_NAME, 'id');
 					// 		console.log(error);
-					// 		throw(error);
+					// 		throw error;
 					// 	}
 					// });
 
@@ -288,7 +437,7 @@ class Project extends Parse.Object{
 
 	/*
 	 * validates the projectConfig.NAME_FIELD field
-	 * @return {Promise} : 
+	 * @return {Promise} :
 	 * 		fulfilled iff projectConfig.NAME_FIELD field exists in the JSON and
 	 * 		value is String
 	 * 		rejected otherwise, returning the error message
@@ -300,13 +449,13 @@ class Project extends Parse.Object{
 
 			// no such field
 			if(name === undefined) {
-				reject(FIELD_NOT_PRESENT_ERROR(projectConfig.NAME_FIELD));
+				reject(errorUtils.FIELD_NOT_PRESENT_ERROR(projectConfig.NAME_FIELD));
 			}
 
 			// if not string, invalid
 			if(!validate.isString(name)) {
-				reject(TYPE_NOT_CORRECT_ERROR(projectConfig.NAME_FIELD, typeof(name), 'String'));
-			} 
+				reject(errorUtils.TYPE_NOT_CORRECT_ERROR(projectConfig.NAME_FIELD, typeof(name), 'String'));
+			}
 
 			// TODO: CHECK FOR SPECIAL CHARACTERS IN THE STRING
 			// use validate.js and RegEx for doing this
@@ -316,9 +465,9 @@ class Project extends Parse.Object{
 				get: () => {
 					return this._name;
 				}, set: () => {
-					var error = CANNOT_SET_OBJECT_PROPERTY_ERROR(projectConfig.CLASS_NAME, 'name');
+					var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(projectConfig.CLASS_NAME, 'name');
 					console.log(error);
-					throw(error);
+					throw error;
 				}
 			});
 			fulfill();
@@ -328,7 +477,7 @@ class Project extends Parse.Object{
 
 	/*
 	 * validates the projectConfig.IS_DUBBED_FIELD field
-	 * @return {Promise} : 
+	 * @return {Promise} :
 	 * 		fulfilled iff projectConfig.IS_DUBBED_FIELD field exists in the JSON and
 	 * 		value is boolean
 	 * 		rejected otherwise, returning the error message
@@ -340,12 +489,12 @@ class Project extends Parse.Object{
 
 			// no such field
 			if(isDubbed === undefined) {
-				reject(FIELD_NOT_PRESENT_ERROR(projectConfig.IS_DUBBED_FIELD));
+				reject(errorUtils.FIELD_NOT_PRESENT_ERROR(projectConfig.IS_DUBBED_FIELD));
 			}
 
 			// not a boolean, invalid
 			if(!validate.isBoolean(isDubbed)) {
-				reject(TYPE_NOT_CORRECT_ERROR(projectConfig.IS_DUBBED_FIELD, typeof(isDubbed), 'boolean'));
+				reject(errorUtils.TYPE_NOT_CORRECT_ERROR(projectConfig.IS_DUBBED_FIELD, typeof(isDubbed), 'boolean'));
 			}
 
 			this._isDubbed = isDubbed;
@@ -353,15 +502,15 @@ class Project extends Parse.Object{
 				get: () => {
 					return this._isDubbed;
 				}, set: () => {
-					var error = CANNOT_SET_OBJECT_PROPERTY_ERROR(projectConfig.CLASS_NAME, 'isDubbed');
+					var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(projectConfig.CLASS_NAME, 'isDubbed');
 					console.log(error);
-					throw(error);
+					throw error;
 				}
 			});
 			fulfill();
 
 		});
-		
+
 	}
 
 	/*
@@ -369,8 +518,8 @@ class Project extends Parse.Object{
 	 * @param {String} resolutionField : name of the field to be validated
 	 * @param {String} instanceVariableName : the name of instance variable of this class
 	 * 		to which the resolution value is assigned
-	 * 
-	 * @return {Promise} : 
+	 *
+	 * @return {Promise} :
 	 * 		fulfilled iff resolutionField field exists in the JSON and
 	 * 		value is integer
 	 * 		rejected otherwise, returning the error message
@@ -382,29 +531,29 @@ class Project extends Parse.Object{
 
 			// no such field
 			if(resolution === undefined) {
-				reject(FIELD_NOT_PRESENT_ERROR(resolutionField));
+				reject(errorUtils.FIELD_NOT_PRESENT_ERROR(resolutionField));
 			}
 
 			// if not integer, invalid
 			if(!validate.isInteger(resolution)) {
-				reject(TYPE_NOT_CORRECT_ERROR(resolutionField, typeof(resolution), 'boolean'));
+				reject(errorUtils.TYPE_NOT_CORRECT_ERROR(resolutionField, typeof(resolution), 'boolean'));
 			}
 
 			// TODO: CHECK IF RESOLUTION IS VALID (i.e not negative, ...)
 
 			eval('this._' + instanceVariableName + ' = resolution;');
 
-			var str = 'Object.defineProperty(this, \'' + instanceVariableName + '\', ' + 
-				'{get: () => {return this._' + instanceVariableName + '}, ' + 
-				'set: () => {' + 
-					'var error = CANNOT_SET_OBJECT_PROPERTY_ERROR(\'' + projectConfig.CLASS_NAME + '\', \'' + instanceVariableName + '\');' + 
-					'console.log(error);' + 
-				'throw(error)}});';
+			var str = 'Object.defineProperty(this, \'' + instanceVariableName + '\', ' +
+				'{get: () => {return this._' + instanceVariableName + '}, ' +
+				'set: () => {' +
+					'var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(\'' + projectConfig.CLASS_NAME + '\', \'' + instanceVariableName + '\');' +
+					'console.log(error);' +
+				'throw error}});';
 			eval(str);
 			fulfill();
 
 		});
-	} 
+	}
 
 	/*
 	 * validates the projectConfig.RESOLUTION_X field
@@ -424,7 +573,7 @@ class Project extends Parse.Object{
 
 	/*
 	 * validates the projectConfig.SLIDE_ORDERING_SEQUENCE_FIELD field
-	 * @returns {Promise} : 
+	 * @returns {Promise} :
 	 * 		fulfilled iff projectConfig.SLIDE_ORDERING_SEQUENCE_FIELD field exists in JSON and
 	 * 		the value is an integer Array
 	 * 		rejected otherwise, returning the error message
@@ -433,34 +582,34 @@ class Project extends Parse.Object{
 		return new Promise((fulfill, reject) => {
 
 			var slideOrderingSequence = this.object[projectConfig.SLIDE_ORDERING_SEQUENCE_FIELD];
-	
+
 			// no such field
 			if(slideOrderingSequence === undefined) {
-				reject(FIELD_NOT_PRESENT_ERROR(projectConfig.SLIDE_ORDERING_SEQUENCE_FIELD));
+				reject(errorUtils.FIELD_NOT_PRESENT_ERROR(projectConfig.SLIDE_ORDERING_SEQUENCE_FIELD));
 			}
 
 			// if not array, invalid
 			if(!validate.isArray(slideOrderingSequence)) {
-				reject(TYPE_NOT_CORRECT_ERROR(projectConfig.SLIDE_ORDERING_SEQUENCE_FIELD, typeof(slideOrderingSequence), 'Integer Array'));
+				reject(errorUtils.TYPE_NOT_CORRECT_ERROR(projectConfig.SLIDE_ORDERING_SEQUENCE_FIELD, typeof(slideOrderingSequence), 'Integer Array'));
 			}
 
 			// if any element is not an integer, then invalid
 			for(var i=0; i<slideOrderingSequence.length; i++) {
 				if(!validate.isInteger(slideOrderingSequence[i])) {
-					reject(FIELD_NOT_PRESENT_ERROR(projectConfig.SLIDE_ORDERING_SEQUENCE_FIELD));
+					reject(errorUtils.FIELD_NOT_PRESENT_ERROR(projectConfig.SLIDE_ORDERING_SEQUENCE_FIELD));
 				}
 			}
 
-			// TODO: check if all the corresponding slides present 
+			// TODO: check if all the corresponding slides present
 
 			this._slideOrderingSequence = slideOrderingSequence;
 			Object.defineProperty(this, 'slideOrderingSequence', {
 				get: () => {
 					return this._slideOrderingSequence;
 				}, set: () => {
-					var error = CANNOT_SET_OBJECT_PROPERTY_ERROR(projectConfig.CLASS_NAME, 'slideOrderingSequence');
+					var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(projectConfig.CLASS_NAME, 'slideOrderingSequence');
 					console.log(error);
-					throw(error);
+					throw error;
 				}
 			});
 			fulfill();
@@ -486,6 +635,8 @@ class Project extends Parse.Object{
 		this.set('resolution_x', this.resolutionX);
 		this.set('resolution_y', this.resolutionY);
 		this.set('slide_ordering_sequence', this.slideOrderingSequence);
+
+		// TODO: ADD SLIDES
 
 		return super.save();
 	}

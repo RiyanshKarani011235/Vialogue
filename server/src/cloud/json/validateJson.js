@@ -36,7 +36,7 @@ class jsonObject {
 class projectJsonObject extends jsonObject {
 	/**
 	 * validates whether the json represents a valid project JSON
-	 * 
+	 *
 	 * {
 	 * 		id: ...,
 	 * 		parent_id: ...,
@@ -60,11 +60,11 @@ class projectJsonObject extends jsonObject {
 	 * 					video_url: ...,
 	 * 					question_url: ...
 	 * 				}
-	 * 			}, 
+	 * 			},
 	 * 			...
 	 * 		}
 	 * }
-	 * 
+	 *
 	 * @param {String} jsonString - string supposed to represent project JSON
 	 * @return {boolean} true if jsonString represents a valid project JSON
 	 */
@@ -116,8 +116,7 @@ class projectJsonObject extends jsonObject {
 
 	}
 
-	// TODO
-	// implement actual logic
+	// TODO: implement actual logic
 	projectExists() {
 		return true;
 	}
@@ -132,8 +131,7 @@ class projectJsonObject extends jsonObject {
 			return false;
 		}
 
-		// TODO
-		// implement logic specific to project id
+		// TODO: implement logic specific to project id
 		return true;
 	}
 
@@ -147,8 +145,7 @@ class projectJsonObject extends jsonObject {
 			return false;
 		}
 
-		// TODO
-		// implement logic specific to parent project id
+		// TODO: implement logic specific to parent project id
 		return true;
 	}
 
@@ -162,13 +159,12 @@ class projectJsonObject extends jsonObject {
 			return false;
 		}
 
-		// TODO
-		// implement logic specific to original parent project id
+		// TODO: implement logic specific to original parent project id
 		return true;
 	}
 
 	/**
-	 * validates the "name" field 
+	 * validates the "name" field
 	 * @return {boolean} true if
 	 * 		"name" field exists in the JSON and
 	 * 		value is a valid name
@@ -178,7 +174,7 @@ class projectJsonObject extends jsonObject {
 		if(!this.hasField('name')) {
 			this.validationErrors.push('"name" field not available');
 			return false;
-		} 
+		}
 
 		var name = this.object['name'];
 		// name should not be null
@@ -187,13 +183,12 @@ class projectJsonObject extends jsonObject {
 			return false;
 		}
 
-		// TODO
-		// implement logic to validate project name
+		// TODO: implement logic to validate project name
 		return true;
 	}
 
 	/**
-	 * validates the "is_dubbed" field 
+	 * validates the "is_dubbed" field
 	 * @return {boolean} true if
 	 * 		"is_dubbed" field exists in the JSON and
 	 * 		value is either true of false
@@ -214,7 +209,7 @@ class projectJsonObject extends jsonObject {
 	}
 
 	/**
-	 * validates the "category_id" field 
+	 * validates the "category_id" field
 	 * @return {boolean} true if
 	 * 		"category_id" field exists in the JSON and
 	 * 		category_id exists in the database
@@ -233,13 +228,12 @@ class projectJsonObject extends jsonObject {
 			return false;
 		}
 
-		// TODO
-		// check if category id exists in the database
+		// TODO: check if category id exists in the database
 		return true;
 	}
 
 	/**
-	 * validates the "language_id" field 
+	 * validates the "language_id" field
 	 * @return {boolean} true if
 	 * 		"language_id" field exists in the JSON and
 	 * 		language_id exists in the database
@@ -258,13 +252,12 @@ class projectJsonObject extends jsonObject {
 			return false;
 		}
 
-		// TODO
-		// check if language id exists in the database
+		// TODO: check if language id exists in the database
 		return true;
 	}
 
 	/**
-	 * validates the "author_id" field 
+	 * validates the "author_id" field
 	 * @return {boolean} true if
 	 * 		"language_id" field exists in the JSON and
 	 * 		language_id exists in the database
@@ -283,14 +276,13 @@ class projectJsonObject extends jsonObject {
 			return false;
 		}
 
-		// TODO 
-		// check if user_id exists in the database
+		// TODO: check if user_id exists in the database
 		return true;
 	}
 
 	/**
 	 * validates the "resolution_x" and "resolution_y" fields
-	 * @return {boolean} true if 
+	 * @return {boolean} true if
 	 * 		"resolution_x" and "resolution_y" fields exist in the JSON and
 	 * 		both the above fields have values that are integers
 	 */
@@ -312,7 +304,7 @@ class projectJsonObject extends jsonObject {
 
 		if(isInt(resX) && isInt(resY)) {
 			return true;
-		} 
+		}
 
 		this.validationErrors.push('"resolution_x" or "resolution_y" field values are not integers');
 		return false;
@@ -333,7 +325,7 @@ class projectJsonObject extends jsonObject {
 
 		var slides = this.object['slides'];
 		var slideIds = Object.keys(this.object['slides']);
-		
+
 		// there should be atleast one slide in the project
 		if(slideIds.length === 0) {
 			return false;
@@ -353,7 +345,7 @@ class projectJsonObject extends jsonObject {
 
 	/**
 	 * validates that the slide Id's
-	 * @returns {boolean} true if 
+	 * @returns {boolean} true if
 	 * 		value represents an array
 	 * 		array is not empty
 	 * 		elements of the array should be integers >= 0
@@ -400,19 +392,18 @@ class projectJsonObject extends jsonObject {
 	validateSlide(slideObject) {
 
 		if(!(
-			this.validateSlideLayeringObjects(slideObject) && 
-			this.validateSlideHyperlink(slideObject) && 
-			this.validateSlideType(slideObject) && 
+			this.validateSlideLayeringObjects(slideObject) &&
+			this.validateSlideHyperlink(slideObject) &&
+			this.validateSlideType(slideObject) &&
 			this.validateSlideUrls(slideObject)
 		)) {
 			return false;
-		} 
+		}
 
-		// TODO: 
-		// if type is question, then validate the question JSON
+		// TODO: if type is question, then validate the question JSON
 
 		return true;
-		
+
 	}
 
 	/**
@@ -424,13 +415,12 @@ class projectJsonObject extends jsonObject {
 
 		if(
 			(!layeringObjects) ||
-			((layeringObjects).constructor !== Array)) 
+			((layeringObjects).constructor !== Array))
 		{
 			return false;
 		}
 
-		// TODO
-		// implement validation logic for each layering object
+		// TODO: implement validation logic for each layering object
 		return true;
 	}
 
@@ -450,8 +440,7 @@ class projectJsonObject extends jsonObject {
 			return true;
 		}
 
-		// TODO 
-		// check if hyperlinked slide exists
+		// TODO: check if hyperlinked slide exists
 		return true;
 	}
 
@@ -514,8 +503,7 @@ class projectJsonObject extends jsonObject {
 			}
 		}
 
-		// TODO
-		// check each of the urls exist
+		// TODO: check each of the urls exist
 		return true;
 	}
 
@@ -549,7 +537,7 @@ class projectJsonObject extends jsonObject {
 			if(slideOrderingSequence[i] !== slideIds[i]) {
 				return false;
 			}
-		} 
+		}
 
 		return true;
 	}
