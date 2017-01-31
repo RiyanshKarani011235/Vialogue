@@ -1,6 +1,6 @@
 var fs = require('fs');
 var validate = require('validate.js');
-var jsonUtils = require('../../json/jsonUtils.js');
+var jsonUtils = require('../../utils/jsonUtils.js');
 var errorUtils = require('./errorUtils.js');
 
 var projectConfig = fs.readFileSync('./config/projectConfig.json');
@@ -14,13 +14,56 @@ categoryConfig = jsonUtils.tryParseJSON(categoryConfig) || (() => {throw 'catego
 languageConfig = jsonUtils.tryParseJSON(languageConfig) || (() => {throw 'languageConfig.json is corrupted'})();
 userConfig = jsonUtils.tryParseJSON(userConfig) || (() => {throw 'userConfig.json is corrupted'})();
 
+// TODO:
+// definitions such as Object.defineProperty(this, 'slideOrderingSequence'
+// have been written twice. correct this
+
 /**
+ * A {ParseObject} that represents a row in the {Project} class of the database
  *
+ * public methods
+ * 		constructor
+ * 		constructFromParseObject
+ * 		constructFromJsonString
+ * 		parseJson
+ * 		validateIdField
+ * 		validateId
+ * 		validateParentId
+ * 		validateOriginalParentId
+ * 		validateCategoryId
+ * 		validateLanguageId
+ * 		validateAuthorId
+ * 		validateName
+ * 		validateIsDubbed
+ * 		validateResolution
+ * 		validateResolutionX
+ * 		validateResolutionY
+ * 		validateSlideOrderingSequence
+ * 		validateSlides
+ * 		save
+ *
+ * public attributes
+ * 		id (gettable, settable)
+ * 		parent (gettable)
+ * 		originalParent (gettable)
+ * 		name (gettable)
+ * 		isDubbed (gettable)
+ * 		category (gettable)
+ * 		language (gettable)
+ * 		author (gettable)
+ * 		resolutionX (gettable)
+ * 		resolutionY (gettable)
+ * 		slideOrderingSequence (gettable)
+ * 		slides (gettable)
  */
 class Project extends Parse.Object{
 
 	/**
-	 * @params
+	 * @param {String} jsonString : JSON to parse
+	 * @param {boolean} initialize : if set to false, then the Project object returned will be empty
+	 * OR
+	 * @param {Project} projectParseObject : already generated Project {ParseObject} instance
+	 *
 	 * @returns {Promise} :
 	 * 		fulfilled iff
 	 * 			no validation requested or
@@ -30,7 +73,7 @@ class Project extends Parse.Object{
 	 * 			arguments don't match required argument types
 	 * 			validation errors
 	 */
-	constructor(/* jsonString, initialize=true | ProjectparseObject */) {
+	constructor(/* jsonString, initialize=true | projectparseObject */) {
 
 		if(arguments.length === 2) {
 			if(validate.isString(arguments[0]) && validate.isBoolean(arguments[1])) {
@@ -60,38 +103,9 @@ class Project extends Parse.Object{
 	}
 
 	/**
-	 * if JSON string is provided as input, then we will have to
+	 * if ParseObject is provided as input, then we just have to
+	 * read the required fields from the provided Object
 	 */
-	constructorFromJsonString(jsonString, initialize=true) {
-
-		if(!initialize) {
-			console.log('Project : constructor : not initializing');
-			return;
-		}
-
-		this.jsonString = jsonString;
-		this.object = jsonUtils.tryParseJSON(jsonString) || null;
-
-		if(this.object === null) {
-			// json string not valid
-			return new Promise((fulfill, reject) => {
-				reject(errorUtils.NOT_VALID_JSON_ERROR());
-			});
-		}
-
-		return new Promise((fulfill, reject) => {
-			this.parseJson().then(
-				() => {
-					// return the initialized object
-					fulfill(this);
-				}, (error) => {
-					reject(error);
-				}
-			);
-		});
-
-	}
-
 	constructorFromParseObject(parseObject) {
 		return new Promise((fulfill, reject) => {
 
@@ -107,6 +121,7 @@ class Project extends Parse.Object{
 				this._resolutionX = parseObject.get(projectConfig.RESOLUTION_X_FIELD);
 				this._resolutionY = parseObject.get(projectConfig.RESOLUTION_Y_FIELD);
 				this._slideOrderingSequence = parseObject.get(projectConfig.SLIDE_ORDERING_SEQUENCE_FIELD);
+				this._slides = parseObject.get(projectConfig.SLIDES_FIELD); // TODO: test
 
 				// TODO: SLIDES
 			} catch (error) {
@@ -215,6 +230,52 @@ class Project extends Parse.Object{
 				}
 			});
 
+			// TODO: test
+			Object.defineProperty(this, 'slides', {
+				get: () => {
+					return this._slides
+				}, set: () => {
+					var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(projectConfig.CLASS_NAME, 'slides');
+					console.log(error);
+					throw error;
+				}
+			});
+
+		});
+	}
+
+	/**
+	 * if JSON string is provided as input, then we will have to parse
+	 * the JSON and generate a new ParseObject
+	 */
+	constructorFromJsonString(jsonString, initialize=true) {
+
+		if(!initialize) {
+			console.log('Project : constructFromJsonString : not initializing');
+			return new Promise((fulfill, reject) => {
+				fulfill(this);
+			});
+		}
+
+		this.jsonString = jsonString;
+		this.object = jsonUtils.tryParseJSON(jsonString) || null;
+
+		if(this.object === null) {
+			// json string not valid
+			return new Promise((fulfill, reject) => {
+				reject(errorUtils.NOT_VALID_JSON_ERROR());
+			});
+		}
+
+		return new Promise((fulfill, reject) => {
+			this.parseJson().then(
+				() => {
+					// return the initialized object
+					fulfill(this);
+				}, (error) => {
+					reject(error);
+				}
+			);
 		});
 	}
 
@@ -360,7 +421,7 @@ class Project extends Parse.Object{
 
 	}
 
-	/*
+	/**
 	 * validates the projectConfig.ID_FIELD field
 	 * look at "validateIdField" method for description
 	 */
@@ -395,7 +456,7 @@ class Project extends Parse.Object{
 		});
 	}
 
-	/*
+	/**
 	 * validates the projectConfig.PARENT_FIELD field
 	 * look at "validateIdField" method for description
 	 */
@@ -403,7 +464,7 @@ class Project extends Parse.Object{
 		return this.validateIdField(projectConfig.PARENT_FIELD, projectConfig.CLASS_NAME, projectConfig.PARENT_FIELD);
 	}
 
-	/*
+	/**
 	 * validates the projectConfig.ORIGINAL_PARENT_FIELD field
 	 * look at "validateIdField" method for description
 	 */
@@ -411,7 +472,7 @@ class Project extends Parse.Object{
 		return this.validateIdField(projectConfig.ORIGINAL_PARENT_FIELD, projectConfig.CLASS_NAME, projectConfig.ORIGINAL_PARENT_FIELD);
 	}
 
-	/*
+	/**
 	 * validates the projectConfig.CATEGORY_FIELD field
 	 * look at "validateIdField" method for description
 	 */
@@ -419,7 +480,7 @@ class Project extends Parse.Object{
 		return this.validateIdField(projectConfig.CATEGORY_FIELD, categoryConfig.CLASS_NAME, projectConfig.CATEGORY_FIELD);
 	}
 
-	/*
+	/**
 	 * validates the projectConfig.LANGUAGE_FIELD field
 	 * look at "validateIdField" method for description
 	 */
@@ -427,7 +488,7 @@ class Project extends Parse.Object{
 		return this.validateIdField(projectConfig.LANGUAGE_FIELD, languageConfig.CLASS_NAME, projectConfig.LANGUAGE_FIELD);
 	}
 
-	/*
+	/**
 	 * validates the projectConfig.AUTHOR_FIELD field
 	 * look at "validateIdField" method for description
 	 */
@@ -435,7 +496,7 @@ class Project extends Parse.Object{
 		return this.validateIdField(projectConfig.AUTHOR_FIELD, userConfig.CLASS_NAME, projectConfig.AUTHOR_FIELD);
 	}
 
-	/*
+	/**
 	 * validates the projectConfig.NAME_FIELD field
 	 * @return {Promise} :
 	 * 		fulfilled iff projectConfig.NAME_FIELD field exists in the JSON and
@@ -475,7 +536,7 @@ class Project extends Parse.Object{
 		});
 	}
 
-	/*
+	/**
 	 * validates the projectConfig.IS_DUBBED_FIELD field
 	 * @return {Promise} :
 	 * 		fulfilled iff projectConfig.IS_DUBBED_FIELD field exists in the JSON and
@@ -513,7 +574,7 @@ class Project extends Parse.Object{
 
 	}
 
-	/*
+	/**
 	 * validates the projectConfig.RESOLUTION_*_FIELD fields
 	 * @param {String} resolutionField : name of the field to be validated
 	 * @param {String} instanceVariableName : the name of instance variable of this class
@@ -555,7 +616,7 @@ class Project extends Parse.Object{
 		});
 	}
 
-	/*
+	/**
 	 * validates the projectConfig.RESOLUTION_X field
 	 * look at "validateResolution" method for description
 	 */
@@ -563,7 +624,7 @@ class Project extends Parse.Object{
 		return this.validateResolution(projectConfig.RESOLUTION_X_FIELD, 'resolutionX');
 	}
 
-	/*
+	/**
 	 * validates the projectConfig.RESOLUTION_Y field
 	 * look at "validateResolution" method for description
 	 */
@@ -571,9 +632,9 @@ class Project extends Parse.Object{
 		return this.validateResolution(projectConfig.RESOLUTION_Y_FIELD, 'resolutionY');
 	}
 
-	/*
+	/**
 	 * validates the projectConfig.SLIDE_ORDERING_SEQUENCE_FIELD field
-	 * @returns {Promise} :
+	 * @return {Promise} :
 	 * 		fulfilled iff projectConfig.SLIDE_ORDERING_SEQUENCE_FIELD field exists in JSON and
 	 * 		the value is an integer Array
 	 * 		rejected otherwise, returning the error message
@@ -616,13 +677,29 @@ class Project extends Parse.Object{
 		});
 	}
 
+	// TODO: check
 	validateSlides() {
 		return new Promise((fulfill, reject) => {
+			this._slides = [];
 			// TODO: IMPLEMENT LOGIC
+
+			Object.defineProperty(this, 'slides', {
+				get: () => {
+					return this._slides;
+				}, set: () => {
+					var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(projectConfig.CLASS_NAME, 'slides');
+					console.log(error);
+					throw error;
+				}
+			})
 			fulfill();
 		});
 	}
 
+	/**
+	 * saves the parse object to the databaes
+	 * @return {Promise} fulfilled when object is saved successfully to the database
+	 */
 	save() {
 		this.set('id', this.id);
 		this.set('parent', this.parent);
@@ -635,6 +712,7 @@ class Project extends Parse.Object{
 		this.set('resolution_x', this.resolutionX);
 		this.set('resolution_y', this.resolutionY);
 		this.set('slide_ordering_sequence', this.slideOrderingSequence);
+		this.set('slides', this.slides); // TODO: test
 
 		// TODO: ADD SLIDES
 
