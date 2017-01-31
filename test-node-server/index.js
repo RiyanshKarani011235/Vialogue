@@ -12,12 +12,14 @@ var json = {
 	"category": "S5i3Ou2206",
 	"language": "s1L99KeQ1z",
 	"author": "FGyRgBiBw5",
-	"name": "hello world",
+	"name": "one two ka four",
 	"is_dubbed": true,
 	"resolution_x": 1080,
 	"resolution_y": 721,
 	"slide_ordering_sequence": [1, 2, 3, 3, 4]
 };
+
+console.log('hullalalalelo');
 
 Parse.Cloud.run('uploadJson', json).then(
 	function(o) {
@@ -25,4 +27,4 @@ Parse.Cloud.run('uploadJson', json).then(
 	}, function(error) {
 		console.log(error);
 	}
-);							
+);
