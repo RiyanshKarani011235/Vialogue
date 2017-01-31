@@ -70,56 +70,6 @@ const _slides = new WeakMap();
  */
 class Project extends Parse.Object{
 
-	get parent() {
-		return _parent.get(this);
-	}
-
-	get originalParent() {
-		return _parent.get(this);
-	}
-
-	get category() {
-		return _category.get(this);
-	}
-
-	get language() {
-		return _language.get(this);
-	}
-
-	get author() {
-		return _author.get(this);
-	}
-
-	get name() {
-		return _name.get(this);
-	}
-
-	get isDubbed() {
-		return _isDubbed.get(this);
-	}
-
-	get resolutionX() {
-		return _resolutionX.get(this);
-	}
-
-	get resolutionY() {
-		return _resolutionY.get(this);
-	}
-
-	get slideOrderingSequence() {
-		return _slideOrderingSequence.get(this);
-	}
-
-	get slides() {
-		return _slides.get(this);
-	}
-
-	// TODO:
-	// 	'set: () => {' +
-	// 		'var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(\'' + projectConfig.CLASS_NAME + '\', \'' + instanceVariableName + '\');' +
-	// 		'console.log(error);' +
-	// 	'throw error}});';
-
 	/**
 	 * @param {String} jsonString : JSON to parse
 	 * @param {boolean} initialize : if set to false, then the Project object returned will be empty
@@ -630,6 +580,116 @@ class Project extends Parse.Object{
 		// TODO: ADD SLIDES
 
 		return super.save();
+	}
+
+	get parent() {
+		return _parent.get(this);
+	}
+
+	get originalParent() {
+		return _parent.get(this);
+	}
+
+	get category() {
+		return _category.get(this);
+	}
+
+	get language() {
+		return _language.get(this);
+	}
+
+	get author() {
+		return _author.get(this);
+	}
+
+	get name() {
+		return _name.get(this);
+	}
+
+	get isDubbed() {
+		return _isDubbed.get(this);
+	}
+
+	get resolutionX() {
+		return _resolutionX.get(this);
+	}
+
+	get resolutionY() {
+		return _resolutionY.get(this);
+	}
+
+	get slideOrderingSequence() {
+		return _slideOrderingSequence.get(this);
+	}
+
+	get slides() {
+		return _slides.get(this);
+	}
+
+	set parent(val) {
+		var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(projectConfig.CLASS_NAME, 'parent');
+		console.log(error);
+		throw error;
+	}
+
+	set originalParent(val) {
+		var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(projectConfig.CLASS_NAME, 'originalParent');
+		console.log(error);
+		throw error;
+	}
+
+	set category(val) {
+		var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(projectConfig.CLASS_NAME, 'category');
+		console.log(error);
+		throw error;
+	}
+
+	set language(val) {
+		var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(projectConfig.CLASS_NAME, 'language');
+		console.log(error);
+		throw error;
+	}
+
+	set author(val) {
+		var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(projectConfig.CLASS_NAME, 'author');
+		console.log(error);
+		throw error;
+	}
+
+	set name(val) {
+		var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(projectConfig.CLASS_NAME, 'name');
+		console.log(error);
+		throw error;
+	}
+
+	set isDubbed(val) {
+		var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(projectConfig.CLASS_NAME, 'isDubbed');
+		console.log(error);
+		throw error;
+	}
+
+	set resolutionX(val) {
+		var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(projectConfig.CLASS_NAME, 'resolutionX');
+		console.log(error);
+		throw error;
+	}
+
+	set resolutionY(val) {
+		var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(projectConfig.CLASS_NAME, 'resolutionY');
+		console.log(error);
+		throw error;
+	}
+
+	set slideOrderingSequence(val) {
+		var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(projectConfig.CLASS_NAME, 'slideOrderingSequence');
+		console.log(error);
+		throw error;
+	}
+
+	set slides(val) {
+		var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(projectConfig.CLASS_NAME, 'slides');
+		console.log(error);
+		throw error;
 	}
 
 }
