@@ -3,21 +3,24 @@ var validate = require('validate.js');
 var jsonUtils = require('../../utils/jsonUtils.js');
 var errorUtils = require('./errorUtils.js');
 
+// get configuration files
 var projectConfig = fs.readFileSync('./config/projectConfig.json');
 var categoryConfig = fs.readFileSync('./config/categoryConfig.json');
 var languageConfig = fs.readFileSync('./config/languageConfig.json');
 var userConfig = fs.readFileSync('./config/userConfig.json');
 
-// get configuration files
+// validate configuration files
 projectConfig = jsonUtils.tryParseJSON(projectConfig) || (() => {throw 'projectConfig.json is corrupted'})();
 categoryConfig = jsonUtils.tryParseJSON(categoryConfig) || (() => {throw 'categoryConfig.json is corrupted'})();
 languageConfig = jsonUtils.tryParseJSON(languageConfig) || (() => {throw 'languageConfig.json is corrupted'})();
 userConfig = jsonUtils.tryParseJSON(userConfig) || (() => {throw 'userConfig.json is corrupted'})();
 
-// TODO:
-// definitions such as Object.defineProperty(this, 'slideOrderingSequence'
-// have been written twice. correct this
-
+/* private variables to this class are stored in the form of this WeakMaps
+ * (where the key is the instance object "this", and the value is the value
+ * of the variable). These can only be accessed through the getters and setters
+ * in the Project class, and so we (as a programmer) can control how much can
+ * another class access these variables
+ */
 const _parent = new WeakMap();
 const _originalParent = new WeakMap();
 const _category = new WeakMap();
@@ -582,6 +585,9 @@ class Project extends Parse.Object{
 		return super.save();
 	}
 
+	/**
+	 * getters and setters
+	 */
 	get parent() {
 		return _parent.get(this);
 	}
