@@ -43,9 +43,10 @@ const _category = new WeakMap();
 const _language = new WeakMap();
 const _author = new WeakMap();
 const _name = new WeakMap();
-const _description = new WeakMap(); // TODO
-const _tabs = new WeakMap(); // TODO
+const _description = new WeakMap();
+const _tabs = new WeakMap();
 const _isDubbed = new WeakMap();
+const _isEdited = new WeakMap(); // TODO
 const _resolutionX = new WeakMap();
 const _resolutionY = new WeakMap();
 const _slideOrderingSequence = new WeakMap();
@@ -112,6 +113,7 @@ class Project extends ParseClass.ParseClass {
 		returnObject[ParseClass.projectConfig.DESCRIPTION_FIELD] = this.description;
 		returnObject[ParseClass.projectConfig.TAGS_FIELD] = this.tags;
 		returnObject[ParseClass.projectConfig.IS_DUBBED_FIELD] = this.isDubbed;
+		returnObject[ParseClass.projectConfig.IS_EDITED_FIELD] = this.isEdited.
 		returnObject[ParseClass.projectConfig.RESOLUTION_X_FIELD] = this.resolutionX;
 		returnObject[ParseClass.projectConfig.RESOLUTION_Y_FIELD] = this.resolutionY;
 		returnObject[ParseClass.projectConfig.SLIDE_ORDERING_SEQUENCE_FIELD] = this.slideOrderingSequence;
@@ -135,6 +137,7 @@ class Project extends ParseClass.ParseClass {
 				_description.set(this, parseObject.get(ParseClass.projectConfig.DESCRIPTION_FIELD));
 				_tags.set(this, parseObject.get(ParseClass.projectConfig.TAGS_FIELD));
 				_isDubbed.set(this, parseObject.get(ParseClass.projectConfig.IS_DUBBED_FIELD));
+				_isEdited.set(this, parseObject.get(ParseClass.projectConfig.IS_EDITED_FIELD));
 				_category.set(this, parseObject.get(ParseClass.projectConfig.CATEGORY_FIELD));
 				_langauge.set(this, parseObject.get(ParseClass.projectConfig.LANGUAGE_FIELD));
 				_author.set(this, parseObject.get(ParseClass.projectConfig.AUTHOR_FIELD));
@@ -208,6 +211,7 @@ class Project extends ParseClass.ParseClass {
 			.then(() => { return this.validateDescription()})
 			.then(() => { return this.validateTags()})
 			.then(() => { return this.validateIsDubbed()})
+			.then(() => { return this.validateIsEdited()})
 			.then(() => { return this.validateResolutionX()})
 			.then(() => { return this.validateResolutionY()})
 			.then(() => { return this.validateSlideOrderingSequence()})
@@ -389,6 +393,7 @@ class Project extends ParseClass.ParseClass {
 		});
 	}
 
+	// TODO: add documentation
 	validateDescription() {
 		return new Promise((fulfill, reject) => {
 
@@ -411,6 +416,7 @@ class Project extends ParseClass.ParseClass {
 		});
 	}
 
+	// TODO: add documentation
 	validateTags() {
 		return new Promise((fulfill, reject) => {
 
@@ -463,6 +469,29 @@ class Project extends ParseClass.ParseClass {
 			}
 
 			_isDubbed.set(this, isDubbed);
+			fulfill();
+
+		});
+
+	}
+
+	// TODO: add documentation
+	validateIsEdited() {
+		return new Promise((fulfill, reject) => {
+
+			var isEdited = this.object[ParseClass.projectConfig.IS_EDITED_FIELD];
+
+			// no such field
+			if(isEdited === undefined) {
+				reject(errorUtils.FIELD_NOT_PRESENT_ERROR(ParseClass.projectConfig.IS_EDITED_FIELD));
+			}
+
+			// not a boolean, invalid
+			if(!validate.isBoolean(isEdited)) {
+				reject(errorUtils.TYPE_NOT_CORRECT_ERROR(ParseClass.projectConfig.IS_EDITED_FIELD, typeof(isEdited), 'boolean'));
+			}
+
+			_isEdited.set(this, isEdited);
 			fulfill();
 
 		});
@@ -586,6 +615,7 @@ class Project extends ParseClass.ParseClass {
 		this.set('description', this.description);
 		this.set('tags', this.tags);
 		this.set('is_dubbed', this.isDubbed);
+		this.set('is_edited', this.isEdited);
 		this.set('category', this.category);
 		this.set('language', this.language);
 		this.set('author', this.author);
@@ -632,6 +662,10 @@ class Project extends ParseClass.ParseClass {
 
 	get isDubbed() {
 		return _isDubbed.get(this);
+	}
+
+	get isEdited() {
+		return _isEdited.get(this);
 	}
 
 	get resolutionX() {
@@ -700,6 +734,12 @@ class Project extends ParseClass.ParseClass {
 
 	set isDubbed(val) {
 		var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(ParseClass.projectConfig.CLASS_NAME, 'isDubbed');
+		console.log(error);
+		throw error;
+	}
+
+	set isEdited(val) {
+		var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(ParseClass.projectConfig.CLASS_NAME, 'isEdited');
 		console.log(error);
 		throw error;
 	}
