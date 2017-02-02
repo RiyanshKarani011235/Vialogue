@@ -35,14 +35,15 @@ var id = "ZsMHSSftPf";
  * constructFromJsonString
  *      rejects if
  *          argument_1 does not represent a valid JSON object
- * parseJson
  * validateIdField
- * validateId
- * validateParentId
- * validateOriginalParentId
- * validateCategoryId
- * validateLanguageId
- * validateAuthorId
+ *      rejects if 
+ *          argument_1 is not a {String}
+ *      fulfilled iff fieldName field exists in the JSON and
+ * 			value is null or
+ * 			value is String and corresponds to a parse object in the "className" class of
+ * 			in the database
+ * 		rejected otherwise, returning the error message
+ *
  * validateName
  * validateIsDubbed
  * validateResolution

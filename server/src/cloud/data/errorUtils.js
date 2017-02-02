@@ -1,3 +1,10 @@
+// ParseClass.js
+var INTERFACE_NOT_IMPLEMENTED_ERROR = function(interfaceName, functionNotFoundName) {
+	return new Error('interface \"' + interfaceName +'\" not implemented correctly. Expected ' +
+		'implementation of function \"' + functionNotFoundName + '\"'
+	);
+}
+
 // Reject Error Strings
 var NOT_VALID_JSON_ERROR = function() {
 	return new Error('JSON schema not valid');
@@ -32,6 +39,10 @@ var CONSTRUCTOR_INVALID_ARGUMENTS_ERROR = function(givenArguments) {
 }
 
 module.exports = {
+	// ParseClass
+	INTERFACE_NOT_IMPLEMENTED_ERROR,
+
+	// Project
     NOT_VALID_JSON_ERROR,
     FIELD_NOT_PRESENT_ERROR,
     TYPE_NOT_CORRECT_ERROR,
