@@ -13,7 +13,10 @@ var json = {
 	"language": "s1L99KeQ1z",
 	"author": "FGyRgBiBw5",
 	"name": "one two ka four",
+	"description": "hello",
+	"tags": [],
 	"is_dubbed": true,
+	"is_edited": false,
 	"resolution_x": 1080,
 	"resolution_y": 721,
 	"slide_ordering_sequence": [1, 2, 3, 3, 4]

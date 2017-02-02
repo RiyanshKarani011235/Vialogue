@@ -44,7 +44,7 @@ const _language = new WeakMap();
 const _author = new WeakMap();
 const _name = new WeakMap();
 const _description = new WeakMap();
-const _tabs = new WeakMap();
+const _tags = new WeakMap();
 const _isDubbed = new WeakMap();
 const _isEdited = new WeakMap(); // TODO
 const _resolutionX = new WeakMap();
@@ -97,30 +97,6 @@ const _slides = new WeakMap();
  * 		slides (gettable)
  */
 class Project extends ParseClass.ParseClass {
-
-	//TODO: write a comment
-	getParseClassParams() {
-
-		var returnObject = {};
-
-		returnObject[ParseClass.projectConfig.ID_FIELD] = this.id;
-		returnObject[ParseClass.projectConfig.PARENT_FIELD] = this.parent;
-		returnObject[ParseClass.projectConfig.ORIGINAL_PARENT_FIELD] = this.originalParent;
-		returnObject[ParseClass.projectConfig.CATEGORY_FIELD] = this.category;
-		returnObject[ParseClass.projectConfig.LANGUAGE_FIELD] = this.language;
-		returnObject[ParseClass.projectConfig.AUTHOR_FIELD] = this.author;
-		returnObject[ParseClass.projectConfig.NAME_FIELD] = this.name;
-		returnObject[ParseClass.projectConfig.DESCRIPTION_FIELD] = this.description;
-		returnObject[ParseClass.projectConfig.TAGS_FIELD] = this.tags;
-		returnObject[ParseClass.projectConfig.IS_DUBBED_FIELD] = this.isDubbed;
-		returnObject[ParseClass.projectConfig.IS_EDITED_FIELD] = this.isEdited.
-		returnObject[ParseClass.projectConfig.RESOLUTION_X_FIELD] = this.resolutionX;
-		returnObject[ParseClass.projectConfig.RESOLUTION_Y_FIELD] = this.resolutionY;
-		returnObject[ParseClass.projectConfig.SLIDE_ORDERING_SEQUENCE_FIELD] = this.slideOrderingSequence;
-		returnObject[ParseClass.projectConfig.SLIDES_FIELD] = this.slides;
-
-		return returnObject;
-	}
 
 	/**
 	 * if ParseObject is provided as inpu,t + then we just have to
@@ -279,8 +255,6 @@ class Project extends ParseClass.ParseClass {
 						// 		'console.log(error);' +
 						// 	'throw error}});';
 						var str = '_' + instanceVariableName + '.set(this, result);';
-						console.log('before eval ' + instanceVariableName);
-						console.log(str);
 						eval(str);
 					}
 					fulfill();
@@ -410,7 +384,7 @@ class Project extends ParseClass.ParseClass {
 			}
 
 			// TODO: validate description length
-			_description.set(this, name);
+			_description.set(this, description);
 			fulfill();
 
 		});

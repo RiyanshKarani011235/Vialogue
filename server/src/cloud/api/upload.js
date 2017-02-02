@@ -9,6 +9,7 @@ Parse.Cloud.define('uploadJson', function(request, response) {
 
 		function(result) {
 			console.log('result');
+			console.log(result);
 			p = result;
 			// console.log(result);
 			p.save().then(() => {
@@ -38,10 +39,13 @@ Parse.Cloud.define('uploadJson', function(request, response) {
 				console.log(p._slides);
 				response.success('successfully saved');
 				}, function(error) {
+					console.log('before');
 					console.log(error);
+					console.log('after');
 				}
 			);
 		}, function(error) {
+			console.log('hmmmmm');
 			response.error(error.message);
 		}
 	);

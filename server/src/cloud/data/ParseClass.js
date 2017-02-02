@@ -68,11 +68,6 @@ class ParseClass extends Parse.Object {
 
         // check if this interface is implemented correctly :
 
-        // getParseClassParams
-        if(!this.getParseClassParams) {
-            throw errorUtils.INTERFACE_NOT_IMPLEMENTED_ERROR('ParseClass', 'getParseClassParams');
-        }
-
         // constructorFromParseObject
         if (!this.constructorFromParseObject) {
             throw errorUtils.INTERFACE_NOT_IMPLEMENTED_ERROR('ParseClass', 'constructorFromParseObject');
@@ -103,17 +98,6 @@ class ParseClass extends Parse.Object {
 			});
 		}
 	}
-
-    save() {
-        var parseClassParams = this.getParseClassParams();
-        console.log('lullalalala');
-        console.log(parseClassParams);
-        for(var key in parseClassParams) {
-            console.log(key);
-        }
-
-        return super.save();
-    }
 
 }
 

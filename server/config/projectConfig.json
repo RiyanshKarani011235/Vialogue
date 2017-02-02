@@ -7,6 +7,7 @@
 	"DESCRIPTION_FIELD": "description",
 	"TAGS_FIELD": "tags",
 	"IS_DUBBED_FIELD": "is_dubbed",
+	"IS_EDITED_FIELD": "is_edited",
 	"CATEGORY_FIELD": "category",
 	"LANGUAGE_FIELD": "language",
 	"AUTHOR_FIELD": "author",
