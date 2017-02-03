@@ -1,4 +1,4 @@
-require('./api/upload.js');
+require('./apis/upload.js');
 
 // TODO: every module is loading config files separately.
 // find a way so that this id done only once while initialization

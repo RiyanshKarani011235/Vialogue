@@ -15,12 +15,13 @@
 
 var fs = require('fs');
 var validate = require('validate.js');
-var jsonUtils = require('../../utils/jsonUtils.js');
-var errorUtils = require('../errorUtils.js');
-var ParseClass = require('../ParseClass.js')
-var Image = require('../Image/Image.js').Image;
-var Video = require('../Video/Video.js').Video;
-var Question = require('../Question/Question.js').Question;
+
+var JsonUtils = require('../utils/JsonUtils.js');
+var ErrorUtils = require('../utils/ErrorUtils.js');
+var ParseClass = require('./interfaces/ParseClass.js')
+var Image = require('./Image.js').Image;
+var Video = require('./Video.js').Video;
+var Question = require('./Question.js').Question;
 
 /* private variables to this class are stored in the form of this WeakMaps
  * (where the key is the instance object "this", and the value is the value
@@ -89,12 +90,12 @@ class Slide extends ParseClass.ParseClass {
         console.log('Slide : constructorFromJsonString : initializing');
 
         this.jsonString = jsonString;
-        this.object = jsonUtils.tryParseJSON(jsonString) || null;
+        this.object = JsonUtils.tryParseJSON(jsonString) || null;
 
         if(this.object === null) {
             // json string not valid
             return new Promise((fulfill, reject) => {
-                reject(errorUtils.NOT_VALID_JSON_ERROR());
+                reject(ErrorUtils.NOT_VALID_JSON_ERROR());
             });
         }
 
@@ -158,12 +159,12 @@ class Slide extends ParseClass.ParseClass {
 
             // no such field name
             if(projectSlideId === undefined) {
-                reject(errorUtils.FIELD_NOT_PRESENT_ERROR(PROJECT_SLIDE_ID_FIELD, CLASS_NAME));
+                reject(ErrorUtils.FIELD_NOT_PRESENT_ERROR(PROJECT_SLIDE_ID_FIELD, CLASS_NAME));
             }
 
             // type is not integer, invalid
             if(!validate.isInteger(projectSlideId)) {
-                reject(errorUtils.TYPE_NOT_CORRECT_ERROR(PROJECT_SLIDE_ID_FIELD, CLASS_NAME, typeof(projectSlideId), 'int'));
+                reject(ErrorUtils.TYPE_NOT_CORRECT_ERROR(PROJECT_SLIDE_ID_FIELD, CLASS_NAME, typeof(projectSlideId), 'int'));
             }
 
             _projectSlideId.set(this, projectSlideId);
@@ -187,18 +188,18 @@ class Slide extends ParseClass.ParseClass {
 
             // no such field name
             if(hyperlinks === undefined) {
-                reject(errorUtils.FIELD_NOT_PRESENT_ERROR(HYPERLINKS_FIELD, CLASS_NAME));
+                reject(ErrorUtils.FIELD_NOT_PRESENT_ERROR(HYPERLINKS_FIELD, CLASS_NAME));
             }
 
             // if not array, invalid
             if(!validate.isArray(hyperlinks)) {
-                reject(errorUtils.TYPE_NOT_CORRECT_ERROR(HYPERLINKS_FIELD, CLASS_NAME, typeof(hyperlinks), 'Array'));
+                reject(ErrorUtils.TYPE_NOT_CORRECT_ERROR(HYPERLINKS_FIELD, CLASS_NAME, typeof(hyperlinks), 'Array'));
             }
 
             // if elements of array not strings, not valid
             for(var i=0; i<hyperlinks.length; i++) {
                 if(!validate.isString(hyperlinks[i])) {
-                    reject(errorUtils.TYPE_NOT_CORRECT_ERROR(HYPERLINKS_FIELD + ' : ELEMENT : ', CLASS_NAME, typeof(hyperlinks[i]), 'String'));
+                    reject(ErrorUtils.TYPE_NOT_CORRECT_ERROR(HYPERLINKS_FIELD + ' : ELEMENT : ', CLASS_NAME, typeof(hyperlinks[i]), 'String'));
                 }
             }
 
@@ -223,7 +224,7 @@ class Slide extends ParseClass.ParseClass {
                         }, (error) => {
                             if(error.code === 101) {
         						// object with id "id" not found
-        						reject(errorUtils.PARSE_OBJECT_NOT_FOUND_ERROR(hyperlinks[numHyperlinks], CLASS_NAME));
+        						reject(ErrorUtils.PARSE_OBJECT_NOT_FOUND_ERROR(hyperlinks[numHyperlinks], CLASS_NAME));
         					} else {
         						reject(Error(error));
         					}
@@ -249,12 +250,12 @@ class Slide extends ParseClass.ParseClass {
 
             // no such field name
             if(type === undefined) {
-                reject(errorUtils.FIELD_NOT_PRESENT_ERROR(TYPE_FIELD, CLASS_NAME));
+                reject(ErrorUtils.FIELD_NOT_PRESENT_ERROR(TYPE_FIELD, CLASS_NAME));
             }
 
             // if not String, invalid
             if(!validate.isString(type)) {
-                reject(errorUtils.TYPE_NOT_CORRECT_ERROR(TYPE_FIELD, CLASS_NAME, typeof(type), 'String'));
+                reject(ErrorUtils.TYPE_NOT_CORRECT_ERROR(TYPE_FIELD, CLASS_NAME, typeof(type), 'String'));
             }
 
             // if type not one of previously decided, invalid
@@ -267,7 +268,7 @@ class Slide extends ParseClass.ParseClass {
                 }
             }
             if(!typeValid) {
-                reject(errorUtils.NOT_VALID_VALUE_ERROR(TYPE_FIELD, CLASS_NAME, POSSIBLE_SEGMENT_TYPES));
+                reject(ErrorUtils.NOT_VALID_VALUE_ERROR(TYPE_FIELD, CLASS_NAME, POSSIBLE_SEGMENT_TYPES));
             }
 
             _type.set(this, type);
@@ -285,7 +286,7 @@ class Slide extends ParseClass.ParseClass {
 
             // no such field
             if(resource === undefined) {
-                reject(errorUtils.FIELD_NOT_PRESENT_ERROR(RESOURCE_FIELD, CLASS_NAME));
+                reject(ErrorUtils.FIELD_NOT_PRESENT_ERROR(RESOURCE_FIELD, CLASS_NAME));
             }
 
             // Image Resource
@@ -295,7 +296,7 @@ class Slide extends ParseClass.ParseClass {
                         if(result.constructor.name === IMAGE_TYPE_NAME) {
                             _resource.set(this, result);
                         } else {
-                            reject(errorUtils.TYPE_NOT_CORRECT_ERROR(RESOURCE_FIELD, CLASS_NAME, result.constructor.name, 'image'));
+                            reject(ErrorUtils.TYPE_NOT_CORRECT_ERROR(RESOURCE_FIELD, CLASS_NAME, result.constructor.name, 'image'));
                         }
                     }, (error) => {
                         reject(error);
@@ -310,7 +311,7 @@ class Slide extends ParseClass.ParseClass {
                         if(result.constructor.name === VIDEO_TYPE_NAME) {
                             _resource.set(this, result);
                         } else {
-                            reject(errorUtils.TYPE_NOT_CORRECT_ERROR(RESOURCE_FIELD, CLASS_NAME, result.constructor.name, 'Video'));
+                            reject(ErrorUtils.TYPE_NOT_CORRECT_ERROR(RESOURCE_FIELD, CLASS_NAME, result.constructor.name, 'Video'));
                         }
                     }, (error) => {
                         reject(error);
@@ -325,7 +326,7 @@ class Slide extends ParseClass.ParseClass {
                         if(result.constructor.name === QUESTION_TYPE_NAME) {
                             _resource.set(this, result);
                         } else {
-                            reject(errorUtils.TYPE_NOT_CORRECT_ERROR(RESOURCE_FIELD, CLASS_NAME, result.constructor.name, 'Question'));
+                            reject(ErrorUtils.TYPE_NOT_CORRECT_ERROR(RESOURCE_FIELD, CLASS_NAME, result.constructor.name, 'Question'));
                         }
                     }, (error) => {
                         reject(error);
@@ -345,12 +346,12 @@ class Slide extends ParseClass.ParseClass {
 
 			// no such field
 			if(isEdited === undefined) {
-				reject(errorUtils.FIELD_NOT_PRESENT_ERROR(IS_EDITED_FIELD, CLASS_NAME));
+				reject(ErrorUtils.FIELD_NOT_PRESENT_ERROR(IS_EDITED_FIELD, CLASS_NAME));
 			}
 
 			// not a boolean, invalid
 			if(!validate.isBoolean(isEdited)) {
-				reject(errorUtils.TYPE_NOT_CORRECT_ERROR(IS_EDITED_FIELD, CLASS_NAME, typeof(isEdited), 'boolean'));
+				reject(ErrorUtils.TYPE_NOT_CORRECT_ERROR(IS_EDITED_FIELD, CLASS_NAME, typeof(isEdited), 'boolean'));
 			}
 
 			_isEdited.set(this, isEdited);

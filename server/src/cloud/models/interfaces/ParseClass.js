@@ -1,19 +1,20 @@
 // imports
 var fs = require('fs');
 var validate = require('validate.js');
-var errorUtils = require('./errorUtils.js');
-var jsonUtils = require('../utils/jsonUtils.js');
+
+var ErrorUtils = require('../../utils/ErrorUtils.js');
+var JsonUtils = require('../../utils/JsonUtils.js');
 
 // read and validate configuration files
-const projectConfig = jsonUtils.tryParseJSON(fs.readFileSync('./config/projectConfig.json')) || (() => {throw 'projectConfig.json is corrupted'})();
-const slideConfig = jsonUtils.tryParseJSON(fs.readFileSync('./config/slideConfig.json')) || (() => {throw 'slideConfig.json is corrupted'})();
-const imageConfig = jsonUtils.tryParseJSON(fs.readFileSync('./config/imageConfig.json')) || (() => {throw 'imageConfig.json is corrupted'})();
-const videoConfig = jsonUtils.tryParseJSON(fs.readFileSync('./config/videoConfig.json')) || (() => {throw 'videoConfig.json is corrupted'})();
-const questionConfig = jsonUtils.tryParseJSON(fs.readFileSync('./config/questionConfig.json')) || (() => {throw 'questionConfig.json is corrupted'})();
-const audioConfig = jsonUtils.tryParseJSON(fs.readFileSync('./config/audioConfig.json')) || (() => {throw 'audioConfig.json is corrupted'})();
-const categoryConfig = jsonUtils.tryParseJSON(fs.readFileSync('./config/categoryConfig.json')) || (() => {throw 'categoryConfig.json is corrupted'})();
-const languageConfig = jsonUtils.tryParseJSON(fs.readFileSync('./config/languageConfig.json')) || (() => {throw 'languageConfig.json is corrupted'})();
-const userConfig = jsonUtils.tryParseJSON(fs.readFileSync('./config/userConfig.json')) || (() => {throw 'userConfig.json is corrupted'})();
+const projectConfig = JsonUtils.tryParseJSON(fs.readFileSync('./config/projectConfig.json')) || (() => {throw 'projectConfig.json is corrupted'})();
+const slideConfig = JsonUtils.tryParseJSON(fs.readFileSync('./config/slideConfig.json')) || (() => {throw 'slideConfig.json is corrupted'})();
+const imageConfig = JsonUtils.tryParseJSON(fs.readFileSync('./config/imageConfig.json')) || (() => {throw 'imageConfig.json is corrupted'})();
+const videoConfig = JsonUtils.tryParseJSON(fs.readFileSync('./config/videoConfig.json')) || (() => {throw 'videoConfig.json is corrupted'})();
+const questionConfig = JsonUtils.tryParseJSON(fs.readFileSync('./config/questionConfig.json')) || (() => {throw 'questionConfig.json is corrupted'})();
+const audioConfig = JsonUtils.tryParseJSON(fs.readFileSync('./config/audioConfig.json')) || (() => {throw 'audioConfig.json is corrupted'})();
+const categoryConfig = JsonUtils.tryParseJSON(fs.readFileSync('./config/categoryConfig.json')) || (() => {throw 'categoryConfig.json is corrupted'})();
+const languageConfig = JsonUtils.tryParseJSON(fs.readFileSync('./config/languageConfig.json')) || (() => {throw 'languageConfig.json is corrupted'})();
+const userConfig = JsonUtils.tryParseJSON(fs.readFileSync('./config/userConfig.json')) || (() => {throw 'userConfig.json is corrupted'})();
 
 /**
  * This class is an interface that, that defines provides some methods that
@@ -66,8 +67,8 @@ class ParseClass extends Parse.Object {
 	 * 			arguments don't match required argument types
 	 * 			validation errors
 	 * @throws
-	 * 			errorUtils.CONSTRUCTOR_INVALID_ARGUMENTS_ERROR : if incorrect arguments passed
-	 * 			errorUtils.INTERFACE_NOT_IMPLEMENTED_ERROR : if all the methods of the interface
+	 * 			ErrorUtils.CONSTRUCTOR_INVALID_ARGUMENTS_ERROR : if incorrect arguments passed
+	 * 			ErrorUtils.INTERFACE_NOT_IMPLEMENTED_ERROR : if all the methods of the interface
 	 *	 			have note been implemented
 	 */
 	constructor(className, parameter) {
@@ -77,7 +78,7 @@ class ParseClass extends Parse.Object {
 			(!validate.isString(className)) ||
 			(!(validate.isString(parameter) || (parameter.className === className)))
 		) {
-		  	throw errorUtils.CONSTRUCTOR_INVALID_ARGUMENTS_ERROR(arguments);
+		  	throw ErrorUtils.CONSTRUCTOR_INVALID_ARGUMENTS_ERROR(arguments);
 		}
 
 		// pass the classname to Parse.Object constructor
@@ -87,12 +88,12 @@ class ParseClass extends Parse.Object {
 
 		// constructorFromParseObject
 		if (!this.constructorFromParseObject) {
-			throw errorUtils.INTERFACE_NOT_IMPLEMENTED_ERROR('ParseClass', 'constructorFromParseObject');
+			throw ErrorUtils.INTERFACE_NOT_IMPLEMENTED_ERROR('ParseClass', 'constructorFromParseObject');
 		}
 
 		// constructorFromJsonString
 		if (!this.constructorFromJsonString) {
-			throw errorUtils.INTERFACE_NOT_IMPLEMENTED_ERROR('ParseClass', 'constructorFromJsonString');
+			throw ErrorUtils.INTERFACE_NOT_IMPLEMENTED_ERROR('ParseClass', 'constructorFromJsonString');
 		}
 
 		if(validate.isString(parameter)) {
@@ -122,7 +123,7 @@ class ParseClass extends Parse.Object {
 
 			// no such field
 			if(id === undefined) {
-				reject(errorUtils.FIELD_NOT_PRESENT_ERROR(fieldName, className));
+				reject(ErrorUtils.FIELD_NOT_PRESENT_ERROR(fieldName, className));
 			}
 
 			// if null, then valid
@@ -133,7 +134,7 @@ class ParseClass extends Parse.Object {
 
 			// if type is not String, then invalid
 			if(!validate.isString(id)) {
-				reject(errorUtils.TYPE_NOT_CORRECT_ERROR(fieldName, className, typeof(id), 'String'));
+				reject(ErrorUtils.TYPE_NOT_CORRECT_ERROR(fieldName, className, typeof(id), 'String'));
 			}
 
 			// if object does not exist in the database, then invalid
@@ -145,12 +146,34 @@ class ParseClass extends Parse.Object {
 				}, (error) => {
 					if(error.code === 101) {
 						// object with id "id" not found
-						reject(errorUtils.PARSE_OBJECT_NOT_FOUND_ERROR(id, className));
+						reject(ErrorUtils.PARSE_OBJECT_NOT_FOUND_ERROR(id, className));
 					} else {
 						reject(Error(error));
 					}
 				}
 			);
+
+		});
+
+	}
+
+	// TODO: add documentation
+	validateIsEdited(fieldName, className) {
+		return new Promise((fulfill, reject) => {
+
+			var isEdited = this.object[fieldName];
+
+			// no such field
+			if(isEdited === undefined) {
+				reject(ErrorUtils.FIELD_NOT_PRESENT_ERROR(fieldName, className));
+			}
+
+			// not a boolean, invalid
+			if(!validate.isBoolean(isEdited)) {
+				reject(ErrorUtils.TYPE_NOT_CORRECT_ERROR(fieldName, className, typeof(isEdited), 'boolean'));
+			}
+
+			fulfill(isEdited);
 
 		});
 

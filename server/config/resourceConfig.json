@@ -1,0 +1,6 @@
+{
+    "ID_FIELD": "id",
+    "URL_FIELD": "url",
+    "TYPE_FIELD": "type",
+    "IS_EDITED_FIELD": "is_edited"
+}

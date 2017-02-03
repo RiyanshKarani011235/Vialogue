@@ -26,10 +26,11 @@
 // imports
 var fs = require('fs');
 var validate = require('validate.js');
-var jsonUtils = require('../../utils/jsonUtils.js');
-var errorUtils = require('../errorUtils.js');
-var Slide = require('../Slide/Slide.js').Slide;
-var ParseClass = require('../ParseClass.js');
+
+var JsonUtils = require('../utils/JsonUtils.js');
+var ErrorUtils = require('../utils/ErrorUtils.js');
+var Slide = require('./Slide.js').Slide;
+var ParseClass = require('./interfaces/ParseClass.js');
 
 /* private variables to this class are stored in the form of these WeakMaps
  * (where the key is the instance object "this", and the value is the value
@@ -164,12 +165,12 @@ class Project extends ParseClass.ParseClass {
 	constructorFromJsonString(jsonString) {
 
 		this.jsonString = jsonString;
-		this.object = jsonUtils.tryParseJSON(jsonString) || null;
+		this.object = JsonUtils.tryParseJSON(jsonString) || null;
 
 		if(this.object === null) {
 			// json string not valid
 			return new Promise((fulfill, reject) => {
-				reject(errorUtils.NOT_VALID_JSON_ERROR());
+				reject(ErrorUtils.NOT_VALID_JSON_ERROR());
 			});
 		}
 
@@ -300,12 +301,12 @@ class Project extends ParseClass.ParseClass {
 
 			// no such field
 			if(name === undefined) {
-				reject(errorUtils.FIELD_NOT_PRESENT_ERROR(NAME_FIELD, CLASS_NAME));
+				reject(ErrorUtils.FIELD_NOT_PRESENT_ERROR(NAME_FIELD, CLASS_NAME));
 			}
 
 			// if not string, invalid
 			if(!validate.isString(name)) {
-				reject(errorUtils.TYPE_NOT_CORRECT_ERROR(NAME_FIELD, CLASS_NAME, typeof(name), 'String'));
+				reject(ErrorUtils.TYPE_NOT_CORRECT_ERROR(NAME_FIELD, CLASS_NAME, typeof(name), 'String'));
 			}
 
 			// TODO: CHECK FOR SPECIAL CHARACTERS IN THE STRING
@@ -325,12 +326,12 @@ class Project extends ParseClass.ParseClass {
 
 			// no such field
 			if(description === undefined) {
-				reject(errorUtils.FIELD_NOT_PRESENT_ERROR(DESCRIPTION_FIELD, CLASS_NAME));
+				reject(ErrorUtils.FIELD_NOT_PRESENT_ERROR(DESCRIPTION_FIELD, CLASS_NAME));
 			}
 
 			// if not string, invalid
 			if(!validate.isString(description)) {
-				reject(errorUtils.TYPE_NOT_CORRECT_ERROR(DESCRIPTION_FIELD, CLASS_NAME, typeof(description), 'String'));
+				reject(ErrorUtils.TYPE_NOT_CORRECT_ERROR(DESCRIPTION_FIELD, CLASS_NAME, typeof(description), 'String'));
 			}
 
 			// TODO: validate description length
@@ -348,12 +349,12 @@ class Project extends ParseClass.ParseClass {
 
 			// no such field
 			if(tags === undefined) {
-				reject(errorUtils.FIELD_NOT_PRESENT_ERROR(TAGS_FIELD, CLASS_NAME));
+				reject(ErrorUtils.FIELD_NOT_PRESENT_ERROR(TAGS_FIELD, CLASS_NAME));
 			}
 
 			// if not array, invalid
 			if(!validate.isArray(tags)) {
-				reject(errorUtils.TYPE_NOT_CORRECT_ERROR(TAGS_FIELD, CLASS_NAME, typeof(tags), 'Array'));
+				reject(ErrorUtils.TYPE_NOT_CORRECT_ERROR(TAGS_FIELD, CLASS_NAME, typeof(tags), 'Array'));
 			}
 
 			// TODO: decide if tags should be Strings, or Parse.Objects
@@ -361,7 +362,7 @@ class Project extends ParseClass.ParseClass {
 			for(var i=0; i<tags.length; i++) {
 				var element = tags[i];
 				if(!validate.isString(element)) {
-					reject(errorUtils.TYPE_NOT_CORRECT_ERROR(TAGS_FIELD, CLASS_NAME, typeof(tags), 'StringArray'));
+					reject(ErrorUtils.TYPE_NOT_CORRECT_ERROR(TAGS_FIELD, CLASS_NAME, typeof(tags), 'StringArray'));
 				}
 			}
 
@@ -385,12 +386,12 @@ class Project extends ParseClass.ParseClass {
 
 			// no such field
 			if(isDubbed === undefined) {
-				reject(errorUtils.FIELD_NOT_PRESENT_ERROR(IS_DUBBED_FIELD, CLASS_NAME));
+				reject(ErrorUtils.FIELD_NOT_PRESENT_ERROR(IS_DUBBED_FIELD, CLASS_NAME));
 			}
 
 			// not a boolean, invalid
 			if(!validate.isBoolean(isDubbed)) {
-				reject(errorUtils.TYPE_NOT_CORRECT_ERROR(IS_DUBBED_FIELD, CLASS_NAME, typeof(isDubbed), 'boolean'));
+				reject(ErrorUtils.TYPE_NOT_CORRECT_ERROR(IS_DUBBED_FIELD, CLASS_NAME, typeof(isDubbed), 'boolean'));
 			}
 
 			_isDubbed.set(this, isDubbed);
@@ -404,21 +405,15 @@ class Project extends ParseClass.ParseClass {
 	validateIsEdited() {
 		return new Promise((fulfill, reject) => {
 
-			var isEdited = this.object[IS_EDITED_FIELD];
-
-			// no such field
-			if(isEdited === undefined) {
-				reject(errorUtils.FIELD_NOT_PRESENT_ERROR(IS_EDITED_FIELD, CLASS_NAME));
-			}
-
-			// not a boolean, invalid
-			if(!validate.isBoolean(isEdited)) {
-				reject(errorUtils.TYPE_NOT_CORRECT_ERROR(IS_EDITED_FIELD, CLASS_NAME, typeof(isEdited), 'boolean'));
-			}
-
-			_isEdited.set(this, isEdited);
-			fulfill();
-
+			console.log(super.validateIsEdited);
+			super.validateIsEdited(IS_EDITED_FIELD, CLASS_NAME).then(
+				(result) => {
+					_isEdited.set(this, result);
+					fulfill();
+				}, (error) => {
+					reject(error);
+				}
+			)
 		});
 
 	}
@@ -441,12 +436,12 @@ class Project extends ParseClass.ParseClass {
 
 			// no such field
 			if(resolution === undefined) {
-				reject(errorUtils.FIELD_NOT_PRESENT_ERROR(resolutionField, CLASS_NAME));
+				reject(ErrorUtils.FIELD_NOT_PRESENT_ERROR(resolutionField, CLASS_NAME));
 			}
 
 			// if not integer, invalid
 			if(!validate.isInteger(resolution)) {
-				reject(errorUtils.TYPE_NOT_CORRECT_ERROR(resolutionField, CLASS_NAME, typeof(resolution), 'boolean'));
+				reject(ErrorUtils.TYPE_NOT_CORRECT_ERROR(resolutionField, CLASS_NAME, typeof(resolution), 'boolean'));
 			}
 
 			// TODO: CHECK IF RESOLUTION IS VALID (i.e not negative, ...)
@@ -488,18 +483,18 @@ class Project extends ParseClass.ParseClass {
 
 			// no such field
 			if(slideOrderingSequence === undefined) {
-				reject(errorUtils.FIELD_NOT_PRESENT_ERROR(SLIDE_ORDERING_SEQUENCE_FIELD, CLASS_NAME));
+				reject(ErrorUtils.FIELD_NOT_PRESENT_ERROR(SLIDE_ORDERING_SEQUENCE_FIELD, CLASS_NAME));
 			}
 
 			// if not array, invalid
 			if(!validate.isArray(slideOrderingSequence)) {
-				reject(errorUtils.TYPE_NOT_CORRECT_ERROR(SLIDE_ORDERING_SEQUENCE_FIELD, CLASS_NAME, typeof(slideOrderingSequence), 'Integer Array'));
+				reject(ErrorUtils.TYPE_NOT_CORRECT_ERROR(SLIDE_ORDERING_SEQUENCE_FIELD, CLASS_NAME, typeof(slideOrderingSequence), 'Integer Array'));
 			}
 
 			// if any element is not an integer, then invalid
 			for(var i=0; i<slideOrderingSequence.length; i++) {
 				if(!validate.isInteger(slideOrderingSequence[i])) {
-					reject(errorUtils.TYPE_NOT_CORRECT_ERROR(SLIDE_ORDERING_SEQUENCE_FIELD + ' : ELEMENT : ', CLASS_NAME, typeof(slideOrderingSequence[i]), 'Integer'));
+					reject(ErrorUtils.TYPE_NOT_CORRECT_ERROR(SLIDE_ORDERING_SEQUENCE_FIELD + ' : ELEMENT : ', CLASS_NAME, typeof(slideOrderingSequence[i]), 'Integer'));
 				}
 			}
 
@@ -517,12 +512,12 @@ class Project extends ParseClass.ParseClass {
 
 			// no such field
 			if(slides === undefined) {
-				reject(errorUtils.FIELD_NOT_PRESENT_ERROR(SLIDES_FIELD, CLASS_NAME));
+				reject(ErrorUtils.FIELD_NOT_PRESENT_ERROR(SLIDES_FIELD, CLASS_NAME));
 			}
 
 			// if not array, invalid
 			if(!validate.isArray(slides)) {
-				reject(errorUtils.TYPE_NOT_CORRECT_ERROR(SLIDES_FIELD, CLASS_NAME, typeof(slides), 'Array'));
+				reject(ErrorUtils.TYPE_NOT_CORRECT_ERROR(SLIDES_FIELD, CLASS_NAME, typeof(slides), 'Array'));
 			}
 
 			var _slides_ = [];
@@ -649,85 +644,85 @@ class Project extends ParseClass.ParseClass {
 	}
 
 	set parent(val) {
-		var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(CLASS_NAME, 'parent');
+		var error = ErrorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(CLASS_NAME, 'parent');
 		console.log(error);
 		throw error;
 	}
 
 	set originalParent(val) {
-		var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(CLASS_NAME, 'originalParent');
+		var error = ErrorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(CLASS_NAME, 'originalParent');
 		console.log(error);
 		throw error;
 	}
 
 	set category(val) {
-		var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(CLASS_NAME, 'category');
+		var error = ErrorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(CLASS_NAME, 'category');
 		console.log(error);
 		throw error;
 	}
 
 	set language(val) {
-		var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(CLASS_NAME, 'language');
+		var error = ErrorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(CLASS_NAME, 'language');
 		console.log(error);
 		throw error;
 	}
 
 	set author(val) {
-		var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(CLASS_NAME, 'author');
+		var error = ErrorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(CLASS_NAME, 'author');
 		console.log(error);
 		throw error;
 	}
 
 	set name(val) {
-		var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(CLASS_NAME, 'name');
+		var error = ErrorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(CLASS_NAME, 'name');
 		console.log(error);
 		throw error;
 	}
 
 	set description(val) {
-		var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(CLASS_NAME, 'description');
+		var error = ErrorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(CLASS_NAME, 'description');
 		console.log(error);
 		throw error;
 	}
 
 	set tags(val) {
-		var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(CLASS_NAME, 'tags');
+		var error = ErrorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(CLASS_NAME, 'tags');
 		console.log(error);
 		throw error;
 	}
 
 	set isDubbed(val) {
-		var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(CLASS_NAME, 'isDubbed');
+		var error = ErrorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(CLASS_NAME, 'isDubbed');
 		console.log(error);
 		throw error;
 	}
 
 	set isEdited(val) {
-		var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(CLASS_NAME, 'isEdited');
+		var error = ErrorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(CLASS_NAME, 'isEdited');
 		console.log(error);
 		throw error;
 	}
 
 	set resolutionX(val) {
-		var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(CLASS_NAME, 'resolutionX');
+		var error = ErrorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(CLASS_NAME, 'resolutionX');
 		console.log(error);
 		throw error;
 	}
 
 	set resolutionY(val) {
-		var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(CLASS_NAME, 'resolutionY');
+		var error = ErrorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(CLASS_NAME, 'resolutionY');
 		console.log(error);
 		throw error;
 	}
 
 	set slideOrderingSequence(val) {
-		var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(CLASS_NAME, 'slideOrderingSequence');
+		var error = ErrorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(CLASS_NAME, 'slideOrderingSequence');
 		console.log(error);
 		throw error;
 	}
 
 	set slides(val) {
-		var error = errorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(CLASS_NAME, 'slides');
+		var error = ErrorUtils.CANNOT_SET_OBJECT_PROPERTY_ERROR(CLASS_NAME, 'slides');
 		console.log(error);
 		throw error;
 	}
