@@ -33,6 +33,7 @@ const _layeringObjects = new WeakMap();
 const _hyperLinks = new WeakMap();
 const _type = new WeakMap();
 const _resource = new WeakMap();
+const _isEdited = new WeakMap();
 
 const CLASS_NAME = ParseClass.slideConfig.CLASS_NAME;
 const ID_FIELD = ParseClass.slideConfig.ID_FIELD;
@@ -41,6 +42,8 @@ const LAYERING_OBJECTS_FIELD = ParseClass.slideConfig.LAYERING_OBJECTS_FIELD;
 const HYPERLINKS_FIELD = ParseClass.slideConfig.HYPERLINKS_FIELD;
 const TYPE_FIELD = ParseClass.slideConfig.TYPE_FIELD;
 const RESOURCE_FIELD = ParseClass.slideConfig.RESOURCE_FIELD;
+const POSSIBLE_SEGMENT_TYPES = ParseClass.slideConfig.POSSIBLE_SEGMENT_TYPES;
+const IS_EDITED_FIELD = ParseClass.slideConfig.IS_EDITED_FIELD;
 
 /**
  * A {ParseObject} that represents a row in the {Slide} class of the database
@@ -49,11 +52,12 @@ const RESOURCE_FIELD = ParseClass.slideConfig.RESOURCE_FIELD;
 
 class Slide extends ParseClass.ParseClass {
 
-    constructor() {
-        super(CLASS_NAME, arguments);
+    constructor(parameter) {
+        return super(CLASS_NAME, parameter);
     }
 
     constructorFromParseObject(ParseObject) {
+        console.log('Slide : constructorFromParseObject : called');
         return new Promise((fulfill, reject) => {
 
             try {
@@ -63,6 +67,7 @@ class Slide extends ParseClass.ParseClass {
                 _hyperLinks.set(this, ParseObject.get(HYPERLINKS_FIELD));
                 _type.set(this, ParseObject.get(TYPE_FIELD));
                 _resource.set(this, ParseObject.get(RESOURCE_FIELD));
+                _isEdited.set(this, ParseObject.get(IS_EDITED_FIELD));
             } catch (error) {
                 reject(error);
             }
@@ -70,18 +75,11 @@ class Slide extends ParseClass.ParseClass {
         });
     }
 
-    constructorFromJsonString(jsonString, initialize=true) {
-        if(!initialize) {
-            console.log('Slide : constructFromJson : not initializing');
-            return new Promise((fulfill, reject) => {
-                fulfill(this);
-            });
-        } else {
-            console.log('Slide : constructorFromJsonString : initializing');
-        }
+    constructorFromJsonString(jsonString) {
+        console.log('Slide : constructorFromJsonString : initializing');
 
         this.jsonString = jsonString;
-        this.object = jsonUtils.tryParseJson(jsonString) || null;
+        this.object = jsonUtils.tryParseJSON(jsonString) || null;
 
         if(this.object === null) {
             // json string not valid
@@ -113,8 +111,9 @@ class Slide extends ParseClass.ParseClass {
             .then(() => { return this.validateHyperlinks()})
             .then(() => { return this.validateType()})
             .then(() => { return this.validateResource()})
+            .then(() => { return this.validateIsEdited()})
             .then(() => { fulfill(this)})
-            .catch((error) => {reject(Error(error))});
+            .catch((error) => { reject(Error(error))});
         });
     }
 
@@ -141,19 +140,42 @@ class Slide extends ParseClass.ParseClass {
 		});
 	}
 
+    validateProjectSlideId() {
+        var this_ = this;
+        return new Promise((fulfill, reject) => {
+
+            var projectSlideId = this.object[PROJECT_SLIDE_ID_FIELD];
+
+            // no such field name
+            if(projectSlideId === undefined) {
+                reject(errorUtils.FIELD_NOT_PRESENT_ERROR(PROJECT_SLIDE_ID_FIELD, CLASS_NAME));
+            }
+
+            // type is not integer, invalid
+            if(!validate.isInteger(projectSlideId)) {
+                reject(errorUtils.TYPE_NOT_CORRECT_ERROR(PROJECT_SLIDE_ID_FIELD, CLASS_NAME, typeof(projectSlideId), 'int'));
+            }
+
+            _projectSlideId.set(this, projectSlideId);
+            fulfill();
+
+        });
+    }
+
     validateLayeringObjects() {
         return new Promise((fulfill, reject) => {
             // TODO: implement
+            _layeringObjects.set(this, []);
             fulfill();
         });
     }
 
     validateHyperlinks() {
-        return new new Promise(function(fulfill, reject) {
+        return new Promise((fulfill, reject) => {
 
-            var hyperlinks = this.object[ParseClass.HYPERLINKS_FIELD];
+            var hyperlinks = this.object[HYPERLINKS_FIELD];
 
-            // no such fieldName
+            // no such field name
             if(hyperlinks === undefined) {
                 reject(errorUtils.FIELD_NOT_PRESENT_ERROR(HYPERLINKS_FIELD, CLASS_NAME));
             }
@@ -163,9 +185,120 @@ class Slide extends ParseClass.ParseClass {
                 reject(errorUtils.TYPE_NOT_CORRECT_ERROR(HYPERLINKS_FIELD, CLASS_NAME, typeof(hyperlinks), 'Array'));
             }
 
+            // if elements of array not strings, not valid
+            for(var i=0; i<hyperlinks.length; i++) {
+                if(!validate.isString(hyperlinks[i])) {
+                    reject(errorUtils.TYPE_NOT_CORRECT_ERROR(HYPERLINKS_FIELD + ' : ELEMENT : ', CLASS_NAME, typeof(hyperlinks[i]), 'String'));
+                }
+            }
+
+            // TODO check if each value in the above array points to a slide object
+            return new Promise((fulfill, reject) => {
+
+                // if no hyperlinks, fulfill
+                if(hyperlinks.length === 0) {
+                    fulfill();
+                }
+
+                var numHyperlinks = 0;
+                for(var i=0; i<hyperlinks.length; i++) {
+                    var obj = Parse.Object.extend(CLASS_NAME);
+                    var query = new Parse.Query(obj);
+                    query.get(hyperlinks[i]).then(
+                        (result) => {
+                            numHyperlinks += 1;
+                            if(numHyperlinks === hyperlinks.length) {
+                                fulfill();
+                            }
+                        }, (error) => {
+                            if(error.code === 101) {
+        						// object with id "id" not found
+        						reject(errorUtils.PARSE_OBJECT_NOT_FOUND_ERROR(hyperlinks[numHyperlinks], CLASS_NAME));
+        					} else {
+        						reject(Error(error));
+        					}
+                        }
+                    );
+                }
+            }).then(
+                (result) => {
+                    _hyperLinks.set(this, hyperlinks);
+                    fulfill();
+                }, (error) => {
+                    reject(error);
+                }
+            )
+
         });
     }
 
+    validateType() {
+        return new Promise((fulfill, reject) => {
 
+            var type = this.object[TYPE_FIELD];
 
+            // no such field name
+            if(type === undefined) {
+                reject(errorUtils.FIELD_NOT_PRESENT_ERROR(TYPE_FIELD, CLASS_NAME));
+            }
+
+            // if not String, invalid
+            if(!validate.isString(type)) {
+                reject(errorUtils.TYPE_NOT_CORRECT_ERROR(TYPE_FIELD, CLASS_NAME, typeof(type), 'String'));
+            }
+
+            // if type not one of previously decided, invalid
+            var typeValid = false;
+            for(var i=0; i<POSSIBLE_SEGMENT_TYPES.length; i++) {
+
+                if(POSSIBLE_SEGMENT_TYPES[i] === type) {
+                    typeValid = true;
+                    break;
+                }
+            }
+            if(!typeValid) {
+                reject(errorUtils.NOT_VALID_VALUE_ERROR(TYPE_FIELD, CLASS_NAME, POSSIBLE_SEGMENT_TYPES));
+            }
+
+            _type.set(this, type);
+            fulfill();
+
+        });
+    }
+
+    validateResource() {
+        return new Promise((fulfill, reject) => {
+
+            // TODO: implement logic
+            fulfill();
+
+        });
+    }
+
+    validateIsEdited() {
+		return new Promise((fulfill, reject) => {
+
+			var isEdited = this.object[IS_EDITED_FIELD];
+
+			// no such field
+			if(isEdited === undefined) {
+				reject(errorUtils.FIELD_NOT_PRESENT_ERROR(IS_EDITED_FIELD, CLASS_NAME));
+			}
+
+			// not a boolean, invalid
+			if(!validate.isBoolean(isEdited)) {
+				reject(errorUtils.TYPE_NOT_CORRECT_ERROR(IS_EDITED_FIELD, CLASS_NAME, typeof(isEdited), 'boolean'));
+			}
+
+			_isEdited.set(this, isEdited);
+			fulfill();
+
+		});
+
+	}
+
+}
+
+module.exports = {
+    Slide
 }

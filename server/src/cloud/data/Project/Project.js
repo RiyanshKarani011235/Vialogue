@@ -28,7 +28,7 @@ var fs = require('fs');
 var validate = require('validate.js');
 var jsonUtils = require('../../utils/jsonUtils.js');
 var errorUtils = require('../errorUtils.js');
-var Slide = require('../Slide/Slide.js');
+var Slide = require('../Slide/Slide.js').Slide;
 var ParseClass = require('../ParseClass.js');
 
 /* private variables to this class are stored in the form of these WeakMaps
@@ -124,8 +124,7 @@ class Project extends ParseClass.ParseClass {
 	 */
 
 	constructor(parameter) {
-		console.log(CLASS_NAME);
-		super(CLASS_NAME, parameter);
+		return super(CLASS_NAME, parameter);
 	}
 
 	/**
@@ -219,7 +218,7 @@ class Project extends ParseClass.ParseClass {
 			.then(() => { return this.validateSlideOrderingSequence()})
 			.then(() => { return this.validateSlides()})
 			.then(() => { fulfill(this)})
-			.catch((error) => {reject(Error(error))});
+			.catch((error) => { reject(Error(error))});
 		});
 	}
 
@@ -359,7 +358,8 @@ class Project extends ParseClass.ParseClass {
 
 			// TODO: decide if tags should be Strings, or Parse.Objects
 			// if array elements not string, invalid
-			for(var element in tags) {
+			for(var i=0; i<tags.length; i++) {
+				var element = tags[i];
 				if(!validate.isString(element)) {
 					reject(errorUtils.TYPE_NOT_CORRECT_ERROR(TAGS_FIELD, CLASS_NAME, typeof(tags), 'StringArray'));
 				}
@@ -499,7 +499,7 @@ class Project extends ParseClass.ParseClass {
 			// if any element is not an integer, then invalid
 			for(var i=0; i<slideOrderingSequence.length; i++) {
 				if(!validate.isInteger(slideOrderingSequence[i])) {
-					reject(errorUtils.TYPE_NOT_CORRECT_ERROR(SLIDE_ORDERING_SEQUENCE_FIELD, CLASS_NAME, typeof(slideOrderingSequence[i]), 'Integer'));
+					reject(errorUtils.TYPE_NOT_CORRECT_ERROR(SLIDE_ORDERING_SEQUENCE_FIELD + ' : ELEMENT : ', CLASS_NAME, typeof(slideOrderingSequence[i]), 'Integer'));
 				}
 			}
 
@@ -512,10 +512,54 @@ class Project extends ParseClass.ParseClass {
 
 	validateSlides() {
 		return new Promise((fulfill, reject) => {
-			// TODO: IMPLEMENT LOGIC
-			_slides.set(this, []);
 
-			fulfill();
+			var slides = this.object[SLIDES_FIELD];
+
+			// no such field
+			if(slides === undefined) {
+				reject(errorUtils.FIELD_NOT_PRESENT_ERROR(SLIDES_FIELD, CLASS_NAME));
+			}
+
+			// if not array, invalid
+			if(!validate.isArray(slides)) {
+				reject(errorUtils.TYPE_NOT_CORRECT_ERROR(SLIDES_FIELD, CLASS_NAME, typeof(slides), 'Array'));
+			}
+
+			var _slides_ = [];
+			// if any element is not a Slide Object, then invalid
+			new Promise((fulfill, reject) => {
+
+				// if no slides, then fulfill
+				if(slides.length === 0) {
+					fulfill();
+				}
+
+				var numFulfilled = 0;
+				for(var i=0; i<slides.length; i++) {
+					var slide = slides[i];
+					new Slide(JSON.stringify(slide)).then(
+						(result) => {
+							// successfully initialized Slide Object
+							_slides_.push(result);
+							numFulfilled += 1;
+							if(numFulfilled === slides.length) {
+								// this was the last slide to fulfill its promise
+								fulfill();
+							}
+						}, (error) => {
+							// not valid Slide Object
+							reject(error);
+						}
+					);
+				}
+			}).then(
+				() => {
+					_slides.set(this, _slides_);
+					fulfill();
+				}, (error) => {
+					reject(error);
+				}
+			);
 		});
 	}
 

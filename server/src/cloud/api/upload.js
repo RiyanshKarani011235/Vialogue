@@ -8,44 +8,15 @@ Parse.Cloud.define('uploadJson', function(request, response) {
 	// new Project().then(
 
 		function(result) {
-			console.log('result');
-			console.log(result);
 			p = result;
 			// console.log(result);
 			p.save().then(() => {
-				console.log(p.id);
-				console.log(p._id);
-				console.log(p.parent);
-				console.log(p._parent);
-				console.log(p.originalParent);
-				console.log(p._originalparent);
-				console.log(p.category);
-				console.log(p._category);
-				console.log(p.language);
-				console.log(p._language);
-				console.log(p.author);
-				console.log(p._author);
-				console.log(p.name);
-				console.log(p._name);
-				console.log(p.isDubbed);
-				console.log(p._isDubbed);
-				console.log(p.resolutionX);
-				console.log(p._resolutionX);
-				console.log(p.resolutionY);
-				console.log(p._resolutionY);
-				console.log(p.slideOrderingSequence);
-				console.log(p._slideOrderingSequence);
-				console.log(p.slides);
-				console.log(p._slides);
-				response.success({a: 'a', b: 'b'});
+					response.success('successfully saved');z
 				}, function(error) {
-					console.log('before');
 					console.log(error);
-					console.log('after');
 				}
 			);
 		}, function(error) {
-			console.log('hmmmmm');
 			response.error(error.message);
 		}
 	);

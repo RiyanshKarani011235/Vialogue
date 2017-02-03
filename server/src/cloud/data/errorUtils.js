@@ -20,6 +20,15 @@ var PARSE_OBJECT_NOT_FOUND_ERROR = function(id, className) {
 	return new Error('Parse Object with id : \"' + id + '\" for Class : \"' + className + '\" not found');
 }
 
+var NOT_VALID_VALUE_ERROR = function(fieldName, className, possibleValuesArray) {
+	var str = 'Incorrect value found for field : \"' + fieldName + '\" of class : \"' + className + '\". ';
+	str += 'acceptable values include : ';
+	for(var i=0; i<possibleValuesArray.length; i++) {
+		str += possibleValuesArray[i] + '| ';
+	}
+	return new Error(str);
+}
+
 // Throw Error Strings
 var CANNOT_SET_OBJECT_PROPERTY_ERROR = function(object, property) {
 	return new Error('Property \"' + property + '\" of object \"' + object + '\" cannot be set');
@@ -47,6 +56,9 @@ module.exports = {
     FIELD_NOT_PRESENT_ERROR,
     TYPE_NOT_CORRECT_ERROR,
     PARSE_OBJECT_NOT_FOUND_ERROR,
+	NOT_VALID_VALUE_ERROR,
+
+	// Throw Error Strings
     CANNOT_SET_OBJECT_PROPERTY_ERROR,
     CONSTRUCTOR_INVALID_ARGUMENTS_ERROR
 }

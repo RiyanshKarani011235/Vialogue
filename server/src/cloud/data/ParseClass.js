@@ -132,7 +132,7 @@ class ParseClass extends Parse.Object {
 			}
 
 			// if type is not String, then invalid
-			if(typeof (id) !== 'string') {
+			if(!validate.isString(id)) {
 				reject(errorUtils.TYPE_NOT_CORRECT_ERROR(fieldName, className, typeof(id), 'String'));
 			}
 

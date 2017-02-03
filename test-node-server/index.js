@@ -14,12 +14,23 @@ var json = {
 	"author": "FGyRgBiBw5",
 	"name": "one two ka four",
 	"description": "hello",
-	"tags": [],
+	"tags": ["hello", "world"],
 	"is_dubbed": true,
 	"is_edited": false,
 	"resolution_x": 1080,
 	"resolution_y": 721,
-	"slide_ordering_sequence": [1, 2, 3, 3, 4]
+	"slide_ordering_sequence": [1, 2, 3, 3, 4],
+	"slides": [
+		{
+			"id": 'jGUWtZJEDb',
+			"project_slide_id": 1,
+			"layering_objects": [],
+			"hyperlinks": [],
+			"type": "Video",
+			"resource": 0,
+			"is_edited": false
+		}
+	]
 };
 
 console.log('hullalalalelo');
