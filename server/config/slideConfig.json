@@ -1,1 +1,11 @@
-{}
+{
+    "ID_FIELD": "id",
+    "PROJECT_SLIDE_ID_FIELD": "project_slide_id",
+    "LAYERING_OBJECTS_FIELD": "layering_objects",
+    "HYPERLINKS_FIELD": "hyperlinks",
+    "TYPE_FIELD": "type",
+    "RESOURCE_FIELD": "resource",
+    "IS_EDITED": "id_edited",
+
+    "CLASS_NAME": "Slide"
+}

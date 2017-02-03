@@ -37,7 +37,7 @@ Parse.Cloud.define('uploadJson', function(request, response) {
 				console.log(p._slideOrderingSequence);
 				console.log(p.slides);
 				console.log(p._slides);
-				response.success('successfully saved');
+				response.success({a: 'a', b: 'b'});
 				}, function(error) {
 					console.log('before');
 					console.log(error);

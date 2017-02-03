@@ -25,11 +25,6 @@ const userConfig = jsonUtils.tryParseJSON(fs.readFileSync('./config/userConfig.j
  * regular standards, any class that extends this class has to implemente then
  * following methods :
  *
- *      getParseClassParams :
- *          TODO: write the description of this method
- *          @return {Object} : consisting of key : value pairs of parameters that need to be
- *              saved to the database, for the particular Parse.Object
- *
  *      constructorFromParseObject :
  *          TODO: write the description of this method
  *          This method is supposed to initialize ...
@@ -40,12 +35,25 @@ const userConfig = jsonUtils.tryParseJSON(fs.readFileSync('./config/userConfig.j
  *          TODO: write the description of this method
  *          @param {String} jsonString : a JSON string that ...
  *          TODO: write this too
+ *
+ * 		TODO write
+ *		constructor() {
+ *	 		super(CLASS_NAME, parameter);
+ *		}
+ *
+ * This class implements the following methods :
+ * 		TODO write
+ * 		validateIdField
+ *
+ * This class also defines the following parameters
+ * 		className
+ *
  */
 class ParseClass extends Parse.Object {
 
     /**
-	 * @param {String} jsonString : JSON to parse
-	 * @param {boolean} initialize : if set to false, then the Project object returned will be empty
+	 * @param {String} className : the class name of the Parse Object in the database
+	 * @param {String} jsonString : JSON To parse
 	 * OR
 	 * @param {Project} projectParseObject : already generated Project {ParseObject} instance
 	 *
@@ -57,47 +65,97 @@ class ParseClass extends Parse.Object {
 	 * 			number of arguments not equal 1 or 2
 	 * 			arguments don't match required argument types
 	 * 			validation errors
+	 * @throws
+	 * 			errorUtils.CONSTRUCTOR_INVALID_ARGUMENTS_ERROR : if incorrect arguments passed
+	 * 			errorUtils.INTERFACE_NOT_IMPLEMENTED_ERROR : if all the methods of the interface
+	 *	 			have note been implemented
 	 */
-	constructor(/* jsonString, initialize=true | projectparseObject */) {
-        // pass the classname to Parse.Object constructor
-        super(projectConfig.CLASS_NAME);
+	constructor(className, parameter) {
 
-		// TODO: after the development is done, remove the initialize option, because
-		// this class is useless if not initialized, and it makes not sense keeping
-		// it here
+		// validate arguments
+		if(
+			(!validate.isString(className)) ||
+			(!(validate.isString(parameter) || (parameter.className === className)))
+		) {
+		  	throw errorUtils.CONSTRUCTOR_INVALID_ARGUMENTS_ERROR(arguments);
+		}
 
-        // check if this interface is implemented correctly :
+		// pass the classname to Parse.Object constructor
+		super(className);
 
-        // constructorFromParseObject
-        if (!this.constructorFromParseObject) {
-            throw errorUtils.INTERFACE_NOT_IMPLEMENTED_ERROR('ParseClass', 'constructorFromParseObject');
-        }
+		// validate the implementation of the interface :
 
-        // constructorFromJsonString
-        if (!this.constructorFromJsonString) {
-            throw errorUtils.INTERFACE_NOT_IMPLEMENTED_ERROR('ParseClass', 'constructorFromJsonString');
-        }
+		// constructorFromParseObject
+		if (!this.constructorFromParseObject) {
+			throw errorUtils.INTERFACE_NOT_IMPLEMENTED_ERROR('ParseClass', 'constructorFromParseObject');
+		}
 
-        // Check if correct arguments have been passed
-		if(arguments.length === 2) {
-			if(validate.isString(arguments[0]) && validate.isBoolean(arguments[1])) {
-				// generate Project instance from a given json string
-				return this.constructorFromJsonString(arguments[0], arguments[1]);
-			}
-		} else if(arguments.length === 1) {
-			if(validate.isString(arguments[0])) {
-                // generate Project instance from a given json string
-				return this.constructorFromJsonString(arguments[0]);
-			} else if((arguments[0].constructor === ParseObjectSubclass) && (arguments[0].className === projectConfig.CLASS_NAME)) {
-                // generate instance from a given Parse Object
-				return this.constructorFromParseObject(arguments[0]);
-			}
+		// constructorFromJsonString
+		if (!this.constructorFromJsonString) {
+			throw errorUtils.INTERFACE_NOT_IMPLEMENTED_ERROR('ParseClass', 'constructorFromJsonString');
+		}
+
+		if(validate.isString(parameter)) {
+			// generate Project instance from a given json string
+			return this.constructorFromJsonString(parameter);
 		} else {
-			return new Promise((fulfill, reject) => {
-				reject(errorUtils.CONSTRUCTOR_INVALID_ARGUMENTS_ERROR(arguments));
-			});
+			// generate instance from a given Parse Object
+			return this.constructorFromParseObject(parameter);
 		}
 	}
+
+	/**
+	 * @param {String} fieldName : id field in the JSON String, to be validated
+	 * @param {String} className : Parse Class name pertaining to the saved Parse Object,
+	 * 							   whose id is the value to this field
+	 * @return {Promise} :
+	 * 		fulfilled iff fieldName field exists in the JSON and
+	 * 			value is null or
+	 * 			value is String and corresponds to a parse object in the "className" class of
+	 * 			in the database
+	 * 		rejected otherwise, returning the error message
+	 */
+	validateIdField(fieldName, className) {
+		return new Promise((fulfill, reject) => {
+
+			var id = this.object[fieldName];
+
+			// no such field
+			if(id === undefined) {
+				reject(errorUtils.FIELD_NOT_PRESENT_ERROR(fieldName, className));
+			}
+
+			// if null, then valid
+			if(id === null) {
+				this.id = id;
+				fulfill();
+			}
+
+			// if type is not String, then invalid
+			if(typeof (id) !== 'string') {
+				reject(errorUtils.TYPE_NOT_CORRECT_ERROR(fieldName, className, typeof(id), 'String'));
+			}
+
+			// if object does not exist in the database, then invalid
+			var obj = Parse.Object.extend(className);
+			var query = new Parse.Query(obj);
+			query.get(id).then(
+				(result) => {
+					fulfill(result);
+				}, (error) => {
+					if(error.code === 101) {
+						// object with id "id" not found
+						reject(errorUtils.PARSE_OBJECT_NOT_FOUND_ERROR(id, className));
+					} else {
+						reject(Error(error));
+					}
+				}
+			);
+
+		});
+
+	}
+
 
 }
 
