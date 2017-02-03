@@ -18,9 +18,9 @@ var validate = require('validate.js');
 var jsonUtils = require('../../utils/jsonUtils.js');
 var errorUtils = require('../errorUtils.js');
 var ParseClass = require('../ParseClass.js')
-var Image = require('../Image/Image.js');
-var Video = require('../Video/Video.js');
-var Question = require('../Question/Question.js');
+var Image = require('../Image/Image.js').Image;
+var Video = require('../Video/Video.js').Video;
+var Question = require('../Question/Question.js').Question;
 
 /* private variables to this class are stored in the form of this WeakMaps
  * (where the key is the instance object "this", and the value is the value
@@ -42,8 +42,18 @@ const LAYERING_OBJECTS_FIELD = ParseClass.slideConfig.LAYERING_OBJECTS_FIELD;
 const HYPERLINKS_FIELD = ParseClass.slideConfig.HYPERLINKS_FIELD;
 const TYPE_FIELD = ParseClass.slideConfig.TYPE_FIELD;
 const RESOURCE_FIELD = ParseClass.slideConfig.RESOURCE_FIELD;
-const POSSIBLE_SEGMENT_TYPES = ParseClass.slideConfig.POSSIBLE_SEGMENT_TYPES;
 const IS_EDITED_FIELD = ParseClass.slideConfig.IS_EDITED_FIELD;
+
+const IMAGE_TYPE_NAME = ParseClass.imageConfig.CLASS_NAME;
+const VIDEO_TYPE_NAME = ParseClass.videoConfig.CLASS_NAME;
+const QUESTION_TYPE_NAME = ParseClass.questionConfig.CLASS_NAME;
+// this order should not be changed. You can only add more
+// types in here
+const POSSIBLE_SEGMENT_TYPES = [
+	IMAGE_TYPE_NAME,       // first : Image
+	VIDEO_TYPE_NAME,       // second : Video
+	QUESTION_TYPE_NAME     // third : Question
+]
 
 /**
  * A {ParseObject} that represents a row in the {Slide} class of the database
@@ -266,10 +276,63 @@ class Slide extends ParseClass.ParseClass {
         });
     }
 
+    // TODO: write comments
+    // This should be called only after the validateType() method is called
     validateResource() {
         return new Promise((fulfill, reject) => {
 
-            // TODO: implement logic
+            var resource = this.object[RESOURCE_FIELD];
+
+            // no such field
+            if(resource === undefined) {
+                reject(errorUtils.FIELD_NOT_PRESENT_ERROR(RESOURCE_FIELD, CLASS_NAME));
+            }
+
+            // Image Resource
+            if((this.object[TYPE_FIELD] === IMAGE_TYPE_NAME)) {
+                new Image(JSON.stringify(resource)).then(
+                    (result) => {
+                        if(result.constructor.name === IMAGE_TYPE_NAME) {
+                            _resource.set(this, result);
+                        } else {
+                            reject(errorUtils.TYPE_NOT_CORRECT_ERROR(RESOURCE_FIELD, CLASS_NAME, result.constructor.name, 'image'));
+                        }
+                    }, (error) => {
+                        reject(error);
+                    }
+                );
+            }
+
+            // Video Resource
+            if((this.object[TYPE_FIELD] === VIDEO_TYPE_NAME)) {
+                new Video(JSON.stringify(resource)).then(
+                    (result) => {
+                        if(result.constructor.name === VIDEO_TYPE_NAME) {
+                            _resource.set(this, result);
+                        } else {
+                            reject(errorUtils.TYPE_NOT_CORRECT_ERROR(RESOURCE_FIELD, CLASS_NAME, result.constructor.name, 'Video'));
+                        }
+                    }, (error) => {
+                        reject(error);
+                    }
+                );
+            }
+
+            // Question Resource
+            if((this.object[TYPE_FIELD] === QUESTION_TYPE_NAME)) {
+                new Question(JSON.stringify(resource)).then(
+                    (result) => {
+                        if(result.constructor.name === QUESTION_TYPE_NAME) {
+                            _resource.set(this, result);
+                        } else {
+                            reject(errorUtils.TYPE_NOT_CORRECT_ERROR(RESOURCE_FIELD, CLASS_NAME, result.constructor.name, 'Question'));
+                        }
+                    }, (error) => {
+                        reject(error);
+                    }
+                );
+            }
+
             fulfill();
 
         });
@@ -296,7 +359,6 @@ class Slide extends ParseClass.ParseClass {
 		});
 
 	}
-
 }
 
 module.exports = {

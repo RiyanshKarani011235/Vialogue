@@ -9,7 +9,7 @@ const projectConfig = jsonUtils.tryParseJSON(fs.readFileSync('./config/projectCo
 const slideConfig = jsonUtils.tryParseJSON(fs.readFileSync('./config/slideConfig.json')) || (() => {throw 'slideConfig.json is corrupted'})();
 const imageConfig = jsonUtils.tryParseJSON(fs.readFileSync('./config/imageConfig.json')) || (() => {throw 'imageConfig.json is corrupted'})();
 const videoConfig = jsonUtils.tryParseJSON(fs.readFileSync('./config/videoConfig.json')) || (() => {throw 'videoConfig.json is corrupted'})();
-const questionConfig = jsonUtils.tryParseJSON(fs.readFileSync('./config/videoConfig.json')) || (() => {throw 'questionConfig.json is corrupted'})();
+const questionConfig = jsonUtils.tryParseJSON(fs.readFileSync('./config/questionConfig.json')) || (() => {throw 'questionConfig.json is corrupted'})();
 const audioConfig = jsonUtils.tryParseJSON(fs.readFileSync('./config/audioConfig.json')) || (() => {throw 'audioConfig.json is corrupted'})();
 const categoryConfig = jsonUtils.tryParseJSON(fs.readFileSync('./config/categoryConfig.json')) || (() => {throw 'categoryConfig.json is corrupted'})();
 const languageConfig = jsonUtils.tryParseJSON(fs.readFileSync('./config/languageConfig.json')) || (() => {throw 'languageConfig.json is corrupted'})();

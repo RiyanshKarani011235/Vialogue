@@ -26,7 +26,7 @@ var json = {
 			"project_slide_id": 1,
 			"layering_objects": [],
 			"hyperlinks": [],
-			"type": "Video",
+			"type": "Question",
 			"resource": 0,
 			"is_edited": false
 		}
