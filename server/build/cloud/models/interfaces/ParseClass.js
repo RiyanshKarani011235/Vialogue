@@ -1,36 +1,38 @@
 // imports
 var fs = require('fs');
+var path = require('path');
 var validate = require('validate.js');
 
 var ErrorUtils = require('../../utils/ErrorUtils.js');
 var JsonUtils = require('../../utils/JsonUtils.js');
 
 // read and validate configuration files
-const projectConfig = JsonUtils.tryParseJSON(fs.readFileSync('./config/projectConfig.json')) || (() => {
+var cloudConfigDir = path.join(__dirname, '..', '..', '..', '..', 'config', 'cloud-config');
+const projectConfig = JsonUtils.tryParseJSON(fs.readFileSync(path.join(cloudConfigDir, 'models', 'projectConfig.json'))) || (() => {
 	throw 'projectConfig.json is corrupted';
 })();
-const slideConfig = JsonUtils.tryParseJSON(fs.readFileSync('./config/slideConfig.json')) || (() => {
+const slideConfig = JsonUtils.tryParseJSON(fs.readFileSync(path.join(cloudConfigDir, 'models', 'slideConfig.json'))) || (() => {
 	throw 'slideConfig.json is corrupted';
 })();
-const imageConfig = JsonUtils.tryParseJSON(fs.readFileSync('./config/imageConfig.json')) || (() => {
+const imageConfig = JsonUtils.tryParseJSON(fs.readFileSync(path.join(cloudConfigDir, 'models', 'imageConfig.json'))) || (() => {
 	throw 'imageConfig.json is corrupted';
 })();
-const videoConfig = JsonUtils.tryParseJSON(fs.readFileSync('./config/videoConfig.json')) || (() => {
+const videoConfig = JsonUtils.tryParseJSON(fs.readFileSync(path.join(cloudConfigDir, 'models', 'videoConfig.json'))) || (() => {
 	throw 'videoConfig.json is corrupted';
 })();
-const questionConfig = JsonUtils.tryParseJSON(fs.readFileSync('./config/questionConfig.json')) || (() => {
+const questionConfig = JsonUtils.tryParseJSON(fs.readFileSync(path.join(cloudConfigDir, 'models', 'questionConfig.json'))) || (() => {
 	throw 'questionConfig.json is corrupted';
 })();
-const audioConfig = JsonUtils.tryParseJSON(fs.readFileSync('./config/audioConfig.json')) || (() => {
+const audioConfig = JsonUtils.tryParseJSON(fs.readFileSync(path.join(cloudConfigDir, 'models', 'audioConfig.json'))) || (() => {
 	throw 'audioConfig.json is corrupted';
 })();
-const categoryConfig = JsonUtils.tryParseJSON(fs.readFileSync('./config/categoryConfig.json')) || (() => {
+const categoryConfig = JsonUtils.tryParseJSON(fs.readFileSync(path.join(cloudConfigDir, 'models', 'categoryConfig.json'))) || (() => {
 	throw 'categoryConfig.json is corrupted';
 })();
-const languageConfig = JsonUtils.tryParseJSON(fs.readFileSync('./config/languageConfig.json')) || (() => {
+const languageConfig = JsonUtils.tryParseJSON(fs.readFileSync(path.join(cloudConfigDir, 'models', 'languageConfig.json'))) || (() => {
 	throw 'languageConfig.json is corrupted';
 })();
-const userConfig = JsonUtils.tryParseJSON(fs.readFileSync('./config/userConfig.json')) || (() => {
+const userConfig = JsonUtils.tryParseJSON(fs.readFileSync(path.join(cloudConfigDir, 'models', 'userConfig.json'))) || (() => {
 	throw 'userConfig.json is corrupted';
 })();
 

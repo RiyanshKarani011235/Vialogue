@@ -1,8 +1,10 @@
+var fs = require('fs');
+var path = require('path');
 var ParseServer = require('parse-server').ParseServer;
 var express = require('express');
-var fs = require('fs');
 
-var data = fs.readFileSync('./config/config.json');
+var serverConfigDir = path.join(__dirname, '..', 'config', 'server-config');
+var data = fs.readFileSync(path.join(serverConfigDir, 'config.json'));
 var config;
 
 try {
