@@ -2,22 +2,23 @@
   "name": "mark3",
   "version": "1.0.0",
   "description": "",
-  "main": "src/index.js",
+  "main": "build/index.js",
   "scripts": {
     "test": "node ./config/test.js",
-    "dev": "backpack"
+    "dev": "babel --watch=./src --out-dir=./build"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "JSON2": "^0.1.0",
-    "chai": "^3.5.0",
     "express": "^4.14.0",
-    "mocha": "^3.2.0",
     "parse-server": "^2.3.2",
     "validate.js": "^0.11.1"
   },
   "devDependencies": {
-    "backpack-core": "0.0.7"
+    "babel-cli": "^6.22.2",
+    "babel-plugin-transform-flow-strip-types": "^6.22.0",
+    "chai": "^3.5.0",
+    "mocha": "^3.2.0"
   }
 }
