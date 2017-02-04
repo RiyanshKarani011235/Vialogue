@@ -1,3 +1,5 @@
+'use strict';
+
 // TODO: add documentation
 
 var fs = require('fs');
@@ -7,13 +9,15 @@ var ErrorUtils = require('../utils/ErrorUtils.js');
 var JsonUtils = require('../utils/JsonUtils.js');
 
 // read and validate configuration files
-const resourceConfig = JsonUtils.tryParseJson(fs.readFileSync('./config/resourceConfig.json'));
+var resourceConfig = JsonUtils.tryParseJson(fs.readFileSync('./config/resourceConfig.json'));
 
 /**
  * This class is a common class that defines a resource type
  */
 
-class Resource extends ParseClass {
-
-  constructor(className) {}
-}
+// class Resource extends ParseClass {
+//
+//     constructor(className) {
+//
+//     }
+// }

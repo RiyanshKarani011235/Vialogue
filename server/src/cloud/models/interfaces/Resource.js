@@ -13,9 +13,9 @@ const resourceConfig = JsonUtils.tryParseJson(fs.readFileSync('./config/resource
  * This class is a common class that defines a resource type
  */
 
-class Resource extends ParseClass {
-
-    constructor(className) {
-
-    }
-}
+// class Resource extends ParseClass {
+//
+//     constructor(className) {
+//
+//     }
+// }

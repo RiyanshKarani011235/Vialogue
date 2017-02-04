@@ -1,14 +1,23 @@
-import t from "flow-runtime";
+"use strict";
+
+var _flowRuntime = require("flow-runtime");
+
+var _flowRuntime2 = _interopRequireDefault(_flowRuntime);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 function bar(x, y) {
-    let _xType = t.string();
+    var _xType = _flowRuntime2.default.string();
 
-    let _yType = t.ref("integer");
+    var _yType = _flowRuntime2.default.ref("integer");
 
-    t.param("x", _xType).assert(x);
-    t.param("y", _yType).assert(y);
+    _flowRuntime2.default.param("x", _xType).assert(x);
+
+    _flowRuntime2.default.param("y", _yType).assert(y);
 
     console.log(x);
 }
 
-t.annotate(bar, t.function(t.param("x", t.string()), t.param("y", t.ref("integer"))));
-bar(10, 20);
+// bar(10, 20);
+
+_flowRuntime2.default.annotate(bar, _flowRuntime2.default.function(_flowRuntime2.default.param("x", _flowRuntime2.default.string()), _flowRuntime2.default.param("y", _flowRuntime2.default.ref("integer"))));

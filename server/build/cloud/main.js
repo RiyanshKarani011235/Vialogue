@@ -1,3 +1,5 @@
+'use strict';
+
 require('./apis/Upload.js');
 
 // TODO: every module is loading config files separately.

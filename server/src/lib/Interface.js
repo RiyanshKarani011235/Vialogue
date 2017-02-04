@@ -4,4 +4,4 @@ function bar(x: string, y: integer) {
     console.log(x);
 }
 
-bar(10, 20);
+// bar(10, 20);

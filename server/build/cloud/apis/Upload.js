@@ -1,3 +1,5 @@
+'use strict';
+
 var Project = require('../models/Project').Project;
 var JSON2 = require('JSON2');
 
@@ -10,7 +12,7 @@ Parse.Cloud.define('uploadJson', function (request, response) {
 	function (result) {
 		p = result;
 		// console.log(result);
-		p.save().then(() => {
+		p.save().then(function () {
 			response.success('successfully saved');z;
 		}, function (error) {
 			console.log(error);
@@ -22,9 +24,9 @@ Parse.Cloud.define('uploadJson', function (request, response) {
 	var obj = Parse.Object.extend('Project');
 	var query = new Parse.Query(obj);
 
-	query.get(request.params['id']).then(result => {
+	query.get(request.params['id']).then(function (result) {
 		console.log(result);
-	}, error => {
+	}, function (error) {
 		console.log(error);
 	});
 });

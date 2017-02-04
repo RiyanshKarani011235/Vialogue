@@ -1,3 +1,5 @@
+'use strict';
+
 var chai = require('chai');
 var expect = chai.expect;
 var Parse = require('parse/node').Parse;
@@ -54,31 +56,31 @@ var id = "ZsMHSSftPf";
  * save
  */
 
-var upload = json => {
+var upload = function upload(json) {
     return Parse.Cloud.run('uploadJson', json);
 };
 
-var assertReject = (promise, errorMessage) => {
-    return promise.then(() => {
+var assertReject = function assertReject(promise, errorMessage) {
+    return promise.then(function () {
         expect.fail('exception did not appear to be thrown');
-    }, error => {
+    }, function (error) {
         expect(error.message).to.equal('Error: ' + errorMessage);
     });
 };
 
-var asserFulfill = (promise, returnValue) => {
-    return promise.then(result => {
+var asserFulfill = function asserFulfill(promise, returnValue) {
+    return promise.then(function (result) {
         expect(result).to.equal(returnValue);
-    }, () => {
+    }, function () {
         expect.fail('exception raised, but not expected');
     });
 };
 
-describe('project.js', () => {
+describe('project.js', function () {
 
-    describe('should reject if any one field is missing', () => {
+    describe('should reject if any one field is missing', function () {
 
-        it('rejects json without id', () => {
+        it('rejects json without id', function () {
             var json = {
                 "parent": id,
                 "original_parent": id,
@@ -94,7 +96,7 @@ describe('project.js', () => {
             return assertReject(upload(json), errorUtils.FIELD_NOT_PRESENT_ERROR('id').message);
         });
 
-        it('rejects json without parent', () => {
+        it('rejects json without parent', function () {
             var json = {
                 "id": id,
                 "original_parent": id,
@@ -110,7 +112,7 @@ describe('project.js', () => {
             return assertReject(upload(json), errorUtils.FIELD_NOT_PRESENT_ERROR('parent').message);
         });
 
-        it('rejects json without original_parent', () => {
+        it('rejects json without original_parent', function () {
             var json = {
                 "id": id,
                 "parent": id,
@@ -126,7 +128,7 @@ describe('project.js', () => {
             return assertReject(upload(json), errorUtils.FIELD_NOT_PRESENT_ERROR('original_parent').message);
         });
 
-        it('rejects json without category', () => {
+        it('rejects json without category', function () {
             var json = {
                 "id": id,
                 "parent": id,
@@ -142,7 +144,7 @@ describe('project.js', () => {
             return assertReject(upload(json), errorUtils.FIELD_NOT_PRESENT_ERROR('category').message);
         });
 
-        it('rejects json without language', () => {
+        it('rejects json without language', function () {
             var json = {
                 "id": id,
                 "parent": id,
@@ -158,7 +160,7 @@ describe('project.js', () => {
             return assertReject(upload(json), errorUtils.FIELD_NOT_PRESENT_ERROR('language').message);
         });
 
-        it('rejects json without author', () => {
+        it('rejects json without author', function () {
             var json = {
                 "id": id,
                 "parent": id,
@@ -174,7 +176,7 @@ describe('project.js', () => {
             return assertReject(upload(json), errorUtils.FIELD_NOT_PRESENT_ERROR('author').message);
         });
 
-        it('rejects json without name', () => {
+        it('rejects json without name', function () {
             var json = {
                 "id": id,
                 "parent": id,
@@ -190,7 +192,7 @@ describe('project.js', () => {
             return assertReject(upload(json), errorUtils.FIELD_NOT_PRESENT_ERROR('name').message);
         });
 
-        it('rejects json without is_dubbed', () => {
+        it('rejects json without is_dubbed', function () {
             var json = {
                 "id": id,
                 "parent": id,
@@ -206,7 +208,7 @@ describe('project.js', () => {
             return assertReject(upload(json), errorUtils.FIELD_NOT_PRESENT_ERROR('is_dubbed').message);
         });
 
-        it('rejects json without resolution_x', () => {
+        it('rejects json without resolution_x', function () {
             var json = {
                 "id": id,
                 "parent": id,
@@ -222,7 +224,7 @@ describe('project.js', () => {
             return assertReject(upload(json), errorUtils.FIELD_NOT_PRESENT_ERROR('resolution_x').message);
         });
 
-        it('rejects json without resolution_y', () => {
+        it('rejects json without resolution_y', function () {
             var json = {
                 "id": id,
                 "parent": id,
@@ -238,7 +240,7 @@ describe('project.js', () => {
             return assertReject(upload(json), errorUtils.FIELD_NOT_PRESENT_ERROR('resolution_y').message);
         });
 
-        it('rejects json without slide_ordering_sequence', () => {
+        it('rejects json without slide_ordering_sequence', function () {
             var json = {
                 "id": id,
                 "parent": id,
@@ -255,7 +257,7 @@ describe('project.js', () => {
         });
     });
 
-    describe('should reject if any field value is of incorrect type', () => {
+    describe('should reject if any field value is of incorrect type', function () {
         // should work for string and null
         // should not work for number, boolean
 
@@ -263,7 +265,7 @@ describe('project.js', () => {
 
         for (var i = 0; i < ids_array.length; i++) {
             id_ = ids_array[i];
-            describe('rejects when ' + id_ + ' is not a string', () => {
+            describe('rejects when ' + id_ + ' is not a string', function () {
 
                 var json = {
                     "id": id,
@@ -280,20 +282,20 @@ describe('project.js', () => {
                 };
 
                 // check for number
-                it('rejects when ' + id_ + ' is a number', () => {
+                it('rejects when ' + id_ + ' is a number', function () {
                     json[id_] = 1;
                     return assertReject(upload(json), errorUtils.TYPE_NOT_CORRECT_ERROR(id_, 'number', 'String').message);
                 });
 
                 // check for boolean
-                it('rejects when ' + id_ + ' is a boolean', () => {
+                it('rejects when ' + id_ + ' is a boolean', function () {
                     json[id_] = true;
                     return assertReject(upload(json), errorUtils.TYPE_NOT_CORRECT_ERROR(id_, 'boolean', 'String').message);
                 });
             });
         }
 
-        describe('rejects when is_dubbed is not a boolean', () => {
+        describe('rejects when is_dubbed is not a boolean', function () {
             // should work for boolean
             // should not work for number, string, null
 
@@ -312,25 +314,25 @@ describe('project.js', () => {
             };
 
             // check for number
-            it('rejects when it is a number', () => {
+            it('rejects when it is a number', function () {
                 json['is_dubbed'] = 1;
                 return assertReject(upload(json), errorUtils.TYPE_NOT_CORRECT_ERROR('is_dubbed', 'number', 'boolean').message);
             });
 
             // check for string
-            it('rejects when it is a String', () => {
+            it('rejects when it is a String', function () {
                 json['is_dubbed'] = 'hello';
                 return assertReject(upload(json), errorUtils.TYPE_NOT_CORRECT_ERROR('is_dubbed', 'string', 'boolean').message);
             });
 
             // check for null
-            it('rejects when it is null', () => {
+            it('rejects when it is null', function () {
                 json['is_dubbed'] = null;
                 return assertReject(upload(json), errorUtils.TYPE_NOT_CORRECT_ERROR('is_dubbed', 'object', 'boolean').message);
             });
         });
 
-        describe('rejects when resolution_x is not a boolean', () => {
+        describe('rejects when resolution_x is not a boolean', function () {
             // should work for boolean
             // should not work for number, string, null
 
@@ -349,19 +351,19 @@ describe('project.js', () => {
             };
 
             // check for number
-            it('rejects when it is a boolean', () => {
+            it('rejects when it is a boolean', function () {
                 json['resolution_x'] = true;
                 return assertReject(upload(json), errorUtils.TYPE_NOT_CORRECT_ERROR('resolution_x', 'boolean', 'number').message);
             });
 
             // check for string
-            it('rejects when it is a String', () => {
+            it('rejects when it is a String', function () {
                 json['resolution_x'] = 'hello';
                 return assertReject(upload(json), errorUtils.TYPE_NOT_CORRECT_ERROR('resolution_x', 'string', 'number').message);
             });
 
             // check for null
-            it('rejects when it is null', () => {
+            it('rejects when it is null', function () {
                 json['resolution_x'] = null;
                 return assertReject(upload(json), errorUtils.TYPE_NOT_CORRECT_ERROR('resolution_x', 'object', 'number').message);
             });
