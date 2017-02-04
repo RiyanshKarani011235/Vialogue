@@ -6,6 +6,8 @@ var validate = require('validate.js');
 var ErrorUtils = require('../../utils/ErrorUtils.js');
 var JsonUtils = require('../../utils/JsonUtils.js');
 
+var interface_ = require('../../../lib/interface.js');
+
 // read and validate configuration files
 var cloudConfigDir = path.join(__dirname, '..', '..', '..', '..', 'config', 'cloud-config');
 const projectConfig = JsonUtils.tryParseJSON(fs.readFileSync(path.join(cloudConfigDir, 'models', 'projectConfig.json'))) || (() => {

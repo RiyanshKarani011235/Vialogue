@@ -1,0 +1,7 @@
+{
+  "plugins": [["flow-runtime", {
+    "assert": true,
+    "annotate": true
+  }],
+  "transform-flow-strip-types"]
+}
