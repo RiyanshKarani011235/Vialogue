@@ -2,11 +2,12 @@
 
 var fs = require('fs');
 var validate = require('validate.js');
-var errorUtils = require('./errorUtils.js');
-var jsonUtils = require('../utils/jsonUtils.js');
+
+var ErrorUtils = require('../utils/ErrorUtils.js');
+var JsonUtils = require('../utils/JsonUtils.js');
 
 // read and validate configuration files
-const resourceConfig = jsonUtils.tryParseJson(fs.readFileSync('./config/resourceConfig.json'));
+const resourceConfig = JsonUtils.tryParseJson(fs.readFileSync('./config/resourceConfig.json'));
 
 /**
  * This class is a common class that defines a resource type
