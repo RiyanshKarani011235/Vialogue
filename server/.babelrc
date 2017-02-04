@@ -4,7 +4,7 @@
           "assert": true,
           "annotate": true
       }],
-      "transform-flow-strip-types",
+      "transform-flow-strip-types"
   ],
   "presets": ["es2015"]
 }

@@ -125,6 +125,7 @@ class Project extends ParseClass.ParseClass {
 	 */
 
 	constructor(parameter) {
+		console.log('constructor');
 		return super(CLASS_NAME, parameter);
 	}
 
@@ -133,12 +134,17 @@ class Project extends ParseClass.ParseClass {
 	 * read the required fields from the provided Object
 	 */
 	constructorFromParseObject(parseObject) {
+		console.log('asdlkjfas;oldkjf');
 		return new Promise((fulfill, reject) => {
 
 			try {
+				console.log('a');
 				this.id = parseObject.get(ID_FIELD);
 				_parent.set(this, parseObject.get(PARENT_FIELD));
+				console.log('a');
 				_originalParent.set(this, parseObject.get(ORIGINAL_PARENT_FIELD));
+				console.log('a');
+
 				_name.set(this, parseObject.get(NAME_FIELD));
 				_description.set(this, parseObject.get(DESCRIPTION_FIELD));
 				_tags.set(this, parseObject.get(TAGS_FIELD));
@@ -163,6 +169,7 @@ class Project extends ParseClass.ParseClass {
 	 * the JSON and generate a new Parse.Object
 	 */
 	constructorFromJsonString(jsonString) {
+		console.log('constructorFromJsonString called');
 
 		this.jsonString = jsonString;
 		this.object = JsonUtils.tryParseJSON(jsonString) || null;
@@ -202,6 +209,7 @@ class Project extends ParseClass.ParseClass {
 	 * 		rejected if any errors caught or schema invalid, returning the error message
 	 */
 	parseJson() {
+		console.log('parseJson called');
 		return new Promise((fulfill, reject) => {
 								 this.validateId()
 			.then(() => { return this.validateParentId()})
@@ -219,7 +227,7 @@ class Project extends ParseClass.ParseClass {
 			.then(() => { return this.validateSlideOrderingSequence()})
 			.then(() => { return this.validateSlides()})
 			.then(() => { fulfill(this)})
-			.catch((error) => { reject(Error(error))});
+			.catch((error) => { console.log(error);reject(Error(error))});
 		});
 	}
 
@@ -430,6 +438,9 @@ class Project extends ParseClass.ParseClass {
 	 * 		rejected otherwise, returning the error message
 	 */
 	validateResolution(resolutionField, instanceVariableName) {
+
+		var this_ = this;
+
 		return new Promise((fulfill, reject) => {
 
 			var resolution = this.object[resolutionField];
@@ -446,7 +457,8 @@ class Project extends ParseClass.ParseClass {
 
 			// TODO: CHECK IF RESOLUTION IS VALID (i.e not negative, ...)
 
-			var str = '_' + instanceVariableName + '.set(this, resolution)';
+			var str = '_' + instanceVariableName + '.set(this_, resolution)';
+			console.log(str);
 			eval(str);
 			fulfill();
 

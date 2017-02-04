@@ -3,6 +3,8 @@ var JSON2 = require('JSON2');
 
 Parse.Cloud.define('uploadJson', function(request, response) {
 
+
+	console.log('hullalalala');
 	var p;
 	new Project(JSON2.stringify(request.params)).then(
 	// new Project().then(

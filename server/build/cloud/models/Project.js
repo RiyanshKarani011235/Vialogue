@@ -145,6 +145,7 @@ var Project = function (_ParseClass$ParseClas) {
 
 		_classCallCheck(this, Project);
 
+		console.log('constructor');
 		return _ret = (_this = _possibleConstructorReturn(this, (Project.__proto__ || Object.getPrototypeOf(Project)).call(this, CLASS_NAME, parameter)), _this), _possibleConstructorReturn(_this, _ret);
 	}
 
@@ -159,12 +160,17 @@ var Project = function (_ParseClass$ParseClas) {
 		value: function constructorFromParseObject(parseObject) {
 			var _this2 = this;
 
+			console.log('asdlkjfas;oldkjf');
 			return new Promise(function (fulfill, reject) {
 
 				try {
+					console.log('a');
 					_this2.id = parseObject.get(ID_FIELD);
 					_parent.set(_this2, parseObject.get(PARENT_FIELD));
+					console.log('a');
 					_originalParent.set(_this2, parseObject.get(ORIGINAL_PARENT_FIELD));
+					console.log('a');
+
 					_name.set(_this2, parseObject.get(NAME_FIELD));
 					_description.set(_this2, parseObject.get(DESCRIPTION_FIELD));
 					_tags.set(_this2, parseObject.get(TAGS_FIELD));
@@ -192,6 +198,8 @@ var Project = function (_ParseClass$ParseClas) {
 		key: 'constructorFromJsonString',
 		value: function constructorFromJsonString(jsonString) {
 			var _this3 = this;
+
+			console.log('constructorFromJsonString called');
 
 			this.jsonString = jsonString;
 			this.object = JsonUtils.tryParseJSON(jsonString) || null;
@@ -234,6 +242,7 @@ var Project = function (_ParseClass$ParseClas) {
 		value: function parseJson() {
 			var _this4 = this;
 
+			console.log('parseJson called');
 			return new Promise(function (fulfill, reject) {
 				_this4.validateId().then(function () {
 					return _this4.validateParentId();
@@ -266,7 +275,7 @@ var Project = function (_ParseClass$ParseClas) {
 				}).then(function () {
 					fulfill(_this4);
 				}).catch(function (error) {
-					reject(Error(error));
+					console.log(error);reject(Error(error));
 				});
 			});
 		}
@@ -517,6 +526,8 @@ var Project = function (_ParseClass$ParseClas) {
 		value: function validateResolution(resolutionField, instanceVariableName) {
 			var _this11 = this;
 
+			var this_ = this;
+
 			return new Promise(function (fulfill, reject) {
 
 				var resolution = _this11.object[resolutionField];
@@ -533,7 +544,8 @@ var Project = function (_ParseClass$ParseClas) {
 
 				// TODO: CHECK IF RESOLUTION IS VALID (i.e not negative, ...)
 
-				var str = '_' + instanceVariableName + '.set(this, resolution)';
+				var str = '_' + instanceVariableName + '.set(this_, resolution)';
+				console.log(str);
 				eval(str);
 				fulfill();
 			});
