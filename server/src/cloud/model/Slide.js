@@ -18,7 +18,7 @@ var validate = require('validate.js');
 
 var JsonUtils = require('../utils/JsonUtils.js');
 var ErrorUtils = require('../utils/ErrorUtils.js');
-var ParseClass = require('./interface/ParseClass.js')
+var ParseClass = require('./interfaces/ParseClass.js')
 var Image = require('./Image.js').Image;
 var Video = require('./Video.js').Video;
 var Question = require('./Question.js').Question;

@@ -1,4 +1,4 @@
-var Project = require('../models/Project').Project;
+var Project = require('../model/Project').Project;
 var JSON2 = require('JSON2');
 
 Parse.Cloud.define('uploadJson', function(request, response) {

@@ -30,7 +30,7 @@ var validate = require('validate.js');
 var JsonUtils = require('../utils/JsonUtils.js');
 var ErrorUtils = require('../utils/ErrorUtils.js');
 // var Slide = require('./Slide.js').Slide;
-var ParseClass = require('./interface/ParseClass.js');
+var ParseClass = require('./interfaces/ParseClass.js');
 
 /* private variables to this class are stored in the form of these WeakMaps
  * (where the key is the instance object "this", and the value is the value
