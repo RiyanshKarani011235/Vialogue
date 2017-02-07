@@ -26,8 +26,13 @@ var json = {
 			"project_slide_id": 1,
 			"layering_objects": [],
 			"hyperlinks": [],
-			"type": "Question",
-			"resource": 0,
+			"type": "Image",
+			"resource": {
+				"id": "XMlbSkT4kI",
+				"type": "Image",
+				"url": '',
+				"is_edited": false
+			},
 			"is_edited": false
 		}
 	]

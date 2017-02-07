@@ -30,7 +30,7 @@ var validate = require('validate.js');
 var JsonUtils = require('../utils/JsonUtils.js');
 var ErrorUtils = require('../utils/ErrorUtils.js');
 // var Slide = require('./Slide.js').Slide;
-var ParseClass = require('./interfaces/ParseClass.js');
+var ParseClass = require('./interface/ParseClass.js');
 
 /* private variables to this class are stored in the form of these WeakMaps
  * (where the key is the instance object "this", and the value is the value
@@ -48,7 +48,7 @@ const _name = new WeakMap();
 const _description = new WeakMap();
 const _tags = new WeakMap();
 const _isDubbed = new WeakMap();
-const _isEdited = new WeakMap(); // TODO
+const _isEdited = new WeakMap();
 const _resolutionX = new WeakMap();
 const _resolutionY = new WeakMap();
 const _slideOrderingSequence = new WeakMap();
@@ -76,8 +76,6 @@ const SLIDES_FIELD = ParseClass.projectConfig.SLIDES_FIELD;
 
 /**
  * A {Parse.Object} that represents a row in the {Project} class of the database
- *
- * // TODO: if time persists, make methods private
  *
  * public methods
  * 		constructor
@@ -124,8 +122,12 @@ class Project extends ParseClass.ParseClass {
 	 * ---------------------------------------------
 	 */
 
-	constructor(parameter: string | Project) {
+	constructor(parameter: string | Project): Promise {
 		return super(CLASS_NAME, parameter);
+	}
+
+	getObject() {
+		return this.object;
 	}
 
 	/**
@@ -187,6 +189,14 @@ class Project extends ParseClass.ParseClass {
 		});
 	}
 
+	toJsonStringWithIds(): string {
+		return '{}'
+	}
+
+	toJsonStringWithObjects(): string {
+		return '{}'
+	}
+
 	/*
 	 * Implement the methods specific to Project Class
 	 * -----------------------------------------------
@@ -217,10 +227,10 @@ class Project extends ParseClass.ParseClass {
 			.then(() => { return this.validateIsEdited()})
 			.then(() => { return this.validateResolutionX()})
 			.then(() => { return this.validateResolutionY()})
-			.then(() => { return this.validateSlideOrderingSequence()})
 			.then(() => { return this.validateSlides()})
+			.then(() => { return this.validateSlideOrderingSequence()})
 			.then(() => { fulfill(this)})
-			.catch((error) => { console.log(error);reject(Error(error))});
+			.catch((error) => { console.log(error); reject(Error(error))});
 		});
 	}
 
@@ -253,7 +263,18 @@ class Project extends ParseClass.ParseClass {
 	 * look at "validateIdField" method for description
 	 */
 	validateParentId(): Promise {
-		return this.validateIdField(PARENT_FIELD, CLASS_NAME);
+		return new Promise((fulfill, reject) => {
+
+			this.validateIdField(PARENT_FIELD, CLASS_NAME).then(
+				(result) => {
+					_parent.set(this, result);
+					fulfill();
+				}, (error) => {
+					reject(error);
+				}
+			);
+
+		});
 	}
 
 	/**
@@ -261,7 +282,18 @@ class Project extends ParseClass.ParseClass {
 	 * look at "validateIdField" method for description
 	 */
 	validateOriginalParentId(): Promise {
-		return this.validateIdField(ORIGINAL_PARENT_FIELD, CLASS_NAME);
+		return new Promise((fulfill, reject) => {
+
+			this.validateIdField(ORIGINAL_PARENT_FIELD, CLASS_NAME).then(
+				(result) => {
+					_originalParent.set(this, result);
+					fulfill();
+				}, (error) => {
+					reject(error);
+				}
+			);
+
+		});
 	}
 
 	/**
@@ -269,7 +301,18 @@ class Project extends ParseClass.ParseClass {
 	 * look at "validateIdField" method for description
 	 */
 	validateCategoryId(): Promise {
-		return this.validateIdField(CATEGORY_FIELD, ParseClass.categoryConfig.CLASS_NAME);
+		return new Promise((fulfill, reject) => {
+
+			this.validateIdField(CATEGORY_FIELD, ParseClass.categoryConfig.CLASS_NAME).then(
+				(result) => {
+					_category.set(this, result);
+					fulfill()
+				}, (error) => {
+					reject(error);
+				}
+			)
+
+		});
 	}
 
 	/**
@@ -277,7 +320,18 @@ class Project extends ParseClass.ParseClass {
 	 * look at "validateIdField" method for description
 	 */
 	validateLanguageId(): Promise {
-		return this.validateIdField(LANGUAGE_FIELD, ParseClass.languageConfig.CLASS_NAME);
+		return new Promise((fulfill, reject) => {
+
+			this.validateIdField(LANGUAGE_FIELD, ParseClass.languageConfig.CLASS_NAME).then(
+				(result) => {
+					_language.set(this, result);
+					fulfill();
+				}, (error) => {
+					reject(error);
+				}
+			);
+
+		});
 	}
 
 	/**
@@ -285,7 +339,18 @@ class Project extends ParseClass.ParseClass {
 	 * look at "validateIdField" method for description
 	 */
 	validateAuthorId(): Promise {
-		return this.validateIdField(AUTHOR_FIELD, ParseClass.userConfig.CLASS_NAME);
+		return new Promise((fulfill, reject) => {
+
+			this.validateIdField(AUTHOR_FIELD, ParseClass.userConfig.CLASS_NAME).then(
+				(result) => {
+					_author.set(this, result);
+					fulfill();
+				}, (error) => {
+					reject(error);
+				}
+			);
+
+		});
 	}
 
 	/**
@@ -319,7 +384,13 @@ class Project extends ParseClass.ParseClass {
 		});
 	}
 
-	// TODO: add documentation
+	/**
+	 * validates the DESCRIPTION_FIELD field
+	 * @return {Promise} :
+	 * 		fulfilled iff DESCRIPTION_FIELD field exists in the JSON and
+	 * 		value is String
+	 *		rejected otherwise
+	 */
 	validateDescription(): Promise {
 		return new Promise((fulfill, reject) => {
 
@@ -342,7 +413,14 @@ class Project extends ParseClass.ParseClass {
 		});
 	}
 
-	// TODO: add documentation
+	/**
+	 * validates the DESCRIPTION_FIELD field
+	 * @return {Promise} :
+	 * 		fulfilled iff DESCRIPTION_FIELD field exists in the JSON and
+	 * 		value is Array and
+	 * 		value of each element in the Array is String
+	 *		rejected otherwise
+	 */
 	validateTags(): Promise {
 		return new Promise((fulfill, reject) => {
 
@@ -402,11 +480,15 @@ class Project extends ParseClass.ParseClass {
 
 	}
 
-	// TODO: add documentation
+	/**
+	 * validates the IS_EDITED_FIELD field
+	 * @return {Promise} :
+	 * 		fulfilled iff IS_EDITED_FIELD field exists in the JSON and
+	 * 		value is boolean
+	 */
 	validateIsEdited(): Promise {
 		return new Promise((fulfill, reject) => {
 
-			console.log(super.validateIsEdited);
 			super.validateIsEdited(IS_EDITED_FIELD, CLASS_NAME).then(
 				(result) => {
 					_isEdited.set(this, result);
@@ -432,8 +514,6 @@ class Project extends ParseClass.ParseClass {
 	 */
 	validateResolution(resolutionField: string, instanceVariableName: string): Promise {
 
-		var this_ = this;
-
 		return new Promise((fulfill, reject) => {
 
 			var resolution = this.object[resolutionField];
@@ -450,10 +530,7 @@ class Project extends ParseClass.ParseClass {
 
 			// TODO: CHECK IF RESOLUTION IS VALID (i.e not negative, ...)
 
-			var str = '_' + instanceVariableName + '.set(this_, resolution)';
-			console.log(str);
-			eval(str);
-			fulfill();
+			fulfill(resolution);
 
 		});
 	}
@@ -463,7 +540,19 @@ class Project extends ParseClass.ParseClass {
 	 * look at "validateResolution" method for description
 	 */
 	validateResolutionX(): Promise {
-		return this.validateResolution(RESOLUTION_X_FIELD, 'resolutionX');
+
+		return new Promise((fulfill, reject) => {
+
+			this.validateResolution(RESOLUTION_X_FIELD, 'resolutionX').then(
+				(result) => {
+					_resolutionX.set(this, result);
+					fulfill();
+				}, (error) => {
+					reject(error);
+				}
+			);
+
+		});
 	}
 
 	/**
@@ -471,7 +560,86 @@ class Project extends ParseClass.ParseClass {
 	 * look at "validateResolution" method for description
 	 */
 	validateResolutionY(): Promise {
-		return this.validateResolution(RESOLUTION_Y_FIELD, 'resolutionY');
+
+		return new Promise((fulfill, reject) => {
+
+			this.validateResolution(RESOLUTION_Y_FIELD, 'resolutionY').then(
+				(result) => {
+					_resolutionY.set(this, result);
+					fulfill();
+				}, (error) => {
+					reject(error);
+				}
+			);
+
+		});
+	}
+
+	/**
+	 * validates each slide in the array corresponding to the SLIDES_FIELD field
+	 * @return {Promise} :
+	 * 		fulfilled if value is an array and
+	 * 		every element in the array represents a valid {Slide} object
+	 * 		(look at the Slide.js module for more information on what represents
+  	 * 		a valid Slide object)
+	 */
+	validateSlides(): Promise {
+
+		// TODO: uncomment
+		// return new Promise((fulfill, reject) => {
+		//
+		// 	var slides = this.object[SLIDES_FIELD];
+		//
+		// 	// no such field
+		// 	if(slides === undefined) {
+		// 		reject(ErrorUtils.FIELD_NOT_PRESENT_ERROR(SLIDES_FIELD, CLASS_NAME));
+		// 	}
+		//
+		// 	// if not array, invalid
+		// 	if(!validate.isArray(slides)) {
+		// 		reject(ErrorUtils.TYPE_NOT_CORRECT_ERROR(SLIDES_FIELD, CLASS_NAME, typeof(slides), 'Array'));
+		// 	}
+		//
+		// 	var _slides_ = [];
+		// 	// if any element is not a Slide Object, then invalid
+		// 	new Promise((fulfill, reject) => {
+		//
+		// 		// if no slides, then fulfill
+		// 		if(slides.length === 0) {
+		// 			fulfill();
+		// 		}
+		//
+		// 		var numFulfilled = 0;
+		// 		for(var i=0; i<slides.length; i++) {
+		// 			var slide = slides[i];
+		// 			new Slide(JSON.stringify(slide)).then(
+		// 				(result) => {
+		// 					// successfully initialized Slide Object
+		// 					_slides_.push(result);
+		// 					numFulfilled += 1;
+		// 					if(numFulfilled === slides.length) {
+		// 						// this was the last slide to fulfill its promise
+		// 						fulfill();
+		// 					}
+		// 				}, (error) => {
+		// 					// not valid Slide Object
+		// 					reject(error);
+		// 				}
+		// 			);
+		// 		}
+		// 	}).then(
+		// 		() => {
+		// 			_slides.set(this, _slides_);
+		// 			fulfill();
+		// 		}, (error) => {
+		// 			reject(error);
+		// 		}
+		// 	);
+		// });
+
+		return new Promise((fulfill, reject) => {
+			fulfill();
+		});
 	}
 
 	/**
@@ -510,59 +678,6 @@ class Project extends ParseClass.ParseClass {
 		});
 	}
 
-	validateSlides(): Promise {
-		return new Promise((fulfill, reject) => {
-
-			var slides = this.object[SLIDES_FIELD];
-
-			// no such field
-			if(slides === undefined) {
-				reject(ErrorUtils.FIELD_NOT_PRESENT_ERROR(SLIDES_FIELD, CLASS_NAME));
-			}
-
-			// if not array, invalid
-			if(!validate.isArray(slides)) {
-				reject(ErrorUtils.TYPE_NOT_CORRECT_ERROR(SLIDES_FIELD, CLASS_NAME, typeof(slides), 'Array'));
-			}
-
-			var _slides_ = [];
-			// if any element is not a Slide Object, then invalid
-			new Promise((fulfill, reject) => {
-
-				// if no slides, then fulfill
-				if(slides.length === 0) {
-					fulfill();
-				}
-
-				var numFulfilled = 0;
-				for(var i=0; i<slides.length; i++) {
-					var slide = slides[i];
-					new Slide(JSON.stringify(slide)).then(
-						(result) => {
-							// successfully initialized Slide Object
-							_slides_.push(result);
-							numFulfilled += 1;
-							if(numFulfilled === slides.length) {
-								// this was the last slide to fulfill its promise
-								fulfill();
-							}
-						}, (error) => {
-							// not valid Slide Object
-							reject(error);
-						}
-					);
-				}
-			}).then(
-				() => {
-					_slides.set(this, _slides_);
-					fulfill();
-				}, (error) => {
-					reject(error);
-				}
-			);
-		});
-	}
-
 	/**
 	 * saves the parse object to the databaes
 	 * @return {Promise} fulfilled when object is saved successfully to the database
@@ -582,7 +697,7 @@ class Project extends ParseClass.ParseClass {
 		this.set('resolution_x', this.resolutionX);
 		this.set('resolution_y', this.resolutionY);
 		this.set('slide_ordering_sequence', this.slideOrderingSequence);
-		this.set('slides', this.slides); // TODO: test
+		this.set('slides', this.slides);
 
 		return super.save();
 	}

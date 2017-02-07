@@ -121,7 +121,7 @@ class ParseClass extends Parse.Object {
 
         // toJsonStringWithObjects
         if(!this.toJsonStringWithObjects) {
-            throw ErrorUtils.INTERFACE_NOT_IMPLEMENTED_ERROR('ParseClass', 'getObjectWithObjects');
+            throw ErrorUtils.INTERFACE_NOT_IMPLEMENTED_ERROR('ParseClass', 'toJsonStringWithObjects');
         }
 
 		if(validate.isString(parameter)) {
@@ -147,7 +147,7 @@ class ParseClass extends Parse.Object {
 	validateIdField(fieldName: string, className: string): Promise {
 		return new Promise((fulfill, reject) => {
 
-			var id = this.getObject[fieldName];
+			var id = this.getObject()[fieldName];
 
 			// no such field
 			if(id === undefined) {
@@ -188,7 +188,7 @@ class ParseClass extends Parse.Object {
 	validateIsEdited(fieldName: string, className: string): Promise {
 		return new Promise((fulfill, reject) => {
 
-			var isEdited = this.getObject[fieldName];
+			var isEdited = this.getObject()[fieldName];
 
 			// no such field
 			if(isEdited === undefined) {

@@ -1,3 +1,13 @@
+/**
+ * {
+ *      id {string} : ...,
+ *      audio_id {string} : ...,
+ *      type {string}: Image | Video | Question | Audio,
+ *      url {string} : ...,
+ *      is_edited {boolean} : ...
+ * }
+ */
+
 // // TODO: add documentation
 //
 // var fs = require('fs');
