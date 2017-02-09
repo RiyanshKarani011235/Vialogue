@@ -3,8 +3,8 @@ var fs = require('fs');
 var path = require('path');
 var validate = require('validate.js');
 
-var ErrorUtils = require('../../utils/ErrorUtils.js');
-var JsonUtils = require('../../utils/JsonUtils.js');
+var ErrorUtils = require('../../util/ErrorUtils.js');
+var JsonUtils = require('../../util/JsonUtils.js');
 
 var interface_ = require('../../../lib/interface.js');
 
@@ -19,6 +19,10 @@ const audioConfig = JsonUtils.tryParseJSON(fs.readFileSync(path.join(cloudConfig
 const categoryConfig = JsonUtils.tryParseJSON(fs.readFileSync(path.join(cloudConfigDir, 'models', 'categoryConfig.json'))) || (() => {throw 'categoryConfig.json is corrupted'})();
 const languageConfig = JsonUtils.tryParseJSON(fs.readFileSync(path.join(cloudConfigDir, 'models', 'languageConfig.json'))) || (() => {throw 'languageConfig.json is corrupted'})();
 const userConfig = JsonUtils.tryParseJSON(fs.readFileSync(path.join(cloudConfigDir, 'models', 'userConfig.json'))) || (() => {throw 'userConfig.json is corrupted'})();
+const resourceConfig = JsonUtils.tryParseJSON(fs.readFileSync(path.join(cloudConfigDir, 'models', 'resourceConfig.json'))) || (() => {throw 'resourceConfig.json is corrupted'})();
+
+
+const _tempParameter = new WeakMap();
 
 /**
  * This class is an interface that, that defines provides some methods that
@@ -83,16 +87,16 @@ class ParseClass extends Parse.Object {
 	 * 			arguments don't match required argument types
 	 * 			validation errors
 	 * @throws
-	 * 			ErrorUtils.CONSTRUCTOR_INVALID_ARGUMENTS_ERROR : if incorrect arguments passed
 	 * 			ErrorUtils.INTERFACE_NOT_IMPLEMENTED_ERROR : if all the methods of the interface
 	 *	 			have note been implemented
 	 */
-	constructor(className: string, parameter: string | ParseClass): Promise {
-
+	constructor(className: string, parameter: string | Parse.Object) {
 		// pass the classname to Parse.Object constructor
 		super(className);
 
-		// validate the implementation of the interface :
+		/**
+         * validate the implementation of the interface :
+         */
 
 		// constructorFromParseObject
 		if (!this.constructorFromParseObject) {
@@ -124,14 +128,33 @@ class ParseClass extends Parse.Object {
             throw ErrorUtils.INTERFACE_NOT_IMPLEMENTED_ERROR('ParseClass', 'toJsonStringWithObjects');
         }
 
-		if(validate.isString(parameter)) {
+        _tempParameter.set(this, parameter);
+	}
+
+    init(): Promise {
+        console.log('initialize called');
+        // TODO TODO//
+        //
+        //
+        // TODO TODO//
+        // test this
+        var parameter = _tempParameter.get(this);
+        console.log(parameter);
+        if(validate.isString(parameter)) {
 			// generate Project instance from a given json string
 			return this.constructorFromJsonString(parameter);
-		} else if(parameter.constructor.name === Parse.Object.className) {
-			// generate instance from a given Parse Object
-			return this.constructorFromParseObject(parameter);
-		}
-	}
+		} else {
+            // generate instance from a given Parse Object
+            if(parameter.constructor.name === this.className) {
+			    return this.constructorFromParseObject(parameter);
+            } else {
+                // different class name
+                return new Promise((fulfill, reject) => {
+                    reject(ErrorUtils.CLASS_NOT_CORRECT_ERROR(this.className, parameter.constructor.name));
+                });
+            }
+        }
+    }
 
 	/**
 	 * @param {String} fieldName : id field in the JSON String, to be validated
@@ -216,5 +239,6 @@ module.exports = {
     audioConfig,
     categoryConfig,
     languageConfig,
-    userConfig
+    userConfig,
+    resourceConfig
 }

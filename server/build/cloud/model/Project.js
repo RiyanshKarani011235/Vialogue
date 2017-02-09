@@ -49,8 +49,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var fs = require('fs');
 var validate = require('validate.js');
 
-var JsonUtils = require('../utils/JsonUtils.js');
-var ErrorUtils = require('../utils/ErrorUtils.js');
+var JsonUtils = require('../util/JsonUtils.js');
+var ErrorUtils = require('../util/ErrorUtils.js');
 // var Slide = require('./Slide.js').Slide;
 var ParseClass = require('./interface/ParseClass.js');
 
@@ -146,8 +146,6 @@ var Project = (_dec = _flowRuntime2.default.annotate(_flowRuntime2.default.class
   */
 
 	function Project(parameter) {
-		var _this, _ret;
-
 		_classCallCheck(this, Project);
 
 		var _parameterType = _flowRuntime2.default.union(_flowRuntime2.default.string(), _flowRuntime2.default.ref(Project));
@@ -156,7 +154,7 @@ var Project = (_dec = _flowRuntime2.default.annotate(_flowRuntime2.default.class
 
 		_flowRuntime2.default.param('parameter', _parameterType).assert(parameter);
 
-		return _ret = _returnType.assert((_this = _possibleConstructorReturn(this, (Project.__proto__ || Object.getPrototypeOf(Project)).call(this, CLASS_NAME, parameter)), _this)), _possibleConstructorReturn(_this, _ret);
+		return _possibleConstructorReturn(this, (Project.__proto__ || Object.getPrototypeOf(Project)).call(this, CLASS_NAME, parameter));
 	}
 
 	_createClass(Project, [{
@@ -309,6 +307,8 @@ var Project = (_dec = _flowRuntime2.default.annotate(_flowRuntime2.default.class
 				}).then(function () {
 					return _this4.validateSlideOrderingSequence();
 				}).then(function () {
+					delete _this4.jsonString;
+					delete _this4.object;
 					fulfill(_this4);
 				}).catch(function (error) {
 					console.log(error);reject(Error(error));

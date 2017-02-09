@@ -27,8 +27,8 @@
 var fs = require('fs');
 var validate = require('validate.js');
 
-var JsonUtils = require('../utils/JsonUtils.js');
-var ErrorUtils = require('../utils/ErrorUtils.js');
+var JsonUtils = require('../util/JsonUtils.js');
+var ErrorUtils = require('../util/ErrorUtils.js');
 // var Slide = require('./Slide.js').Slide;
 var ParseClass = require('./interface/ParseClass.js');
 
@@ -123,7 +123,7 @@ class Project extends ParseClass.ParseClass {
 	 */
 
 	constructor(parameter: string | Project): Promise {
-		return super(CLASS_NAME, parameter);
+		super(CLASS_NAME, parameter);
 	}
 
 	getObject() {
@@ -229,7 +229,11 @@ class Project extends ParseClass.ParseClass {
 			.then(() => { return this.validateResolutionY()})
 			.then(() => { return this.validateSlides()})
 			.then(() => { return this.validateSlideOrderingSequence()})
-			.then(() => { fulfill(this)})
+			.then(() => {
+				delete this.jsonString;
+				delete this.object;
+				fulfill(this);
+			})
 			.catch((error) => { console.log(error); reject(Error(error))});
 		});
 	}

@@ -1,13 +1,15 @@
 'use strict';
 
 var Project = require('../model/Project.js').Project;
-var Segment = require('../model/Slide.js').Slide;
+var Slide = require('../model/Slide.js').Slide;
 var JSON2 = require('JSON2');
 
 Parse.Cloud.define('uploadProject', function (request, response) {
 
-	var p;
-	new Project(JSON2.stringify(request.params)).then(
+	var p = new Project(JSON2.stringify(request.params));
+	console.log('chummamamama');
+	console.log(p);
+	p.init().then(
 	// new Project().then(
 
 	function (result) {
@@ -32,10 +34,13 @@ Parse.Cloud.define('uploadProject', function (request, response) {
 	});
 });
 
-Parse.Cloud.define('uploadSlide', (request, response) => {
+Parse.Cloud.define('uploadSlide', function (request, response) {
+	console.log('chummamamam');
 
-	var p;
-	new Segment(JSON2.stringify(request.params)).then(
+	var p = new Slide(JSON2.stringify(request.params));
+	console.log('chummamamam');
+	console.log(p);
+	p.init().then(
 	// new Project().then(
 
 	function (result) {
@@ -50,7 +55,7 @@ Parse.Cloud.define('uploadSlide', (request, response) => {
 		response.error(error.message);
 	});
 
-	var obj = Parse.Object.extend('Project');
+	var obj = Parse.Object.extend('Slide');
 	var query = new Parse.Query(obj);
 
 	query.get(request.params['id']).then(function (result) {
@@ -58,5 +63,4 @@ Parse.Cloud.define('uploadSlide', (request, response) => {
 	}, function (error) {
 		console.log(error);
 	});
-
 });

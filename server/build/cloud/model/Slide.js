@@ -28,7 +28,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  * 		layering_objects {String Array}: [...],
  * 		hyperlinks {String Array}: [...],
  * 		type {String}: ...,
- * 		resource {Image | Video | Question}: ...,
+ * 		resource {Resource}: ...,
  *      is_edited {boolean}: ...
  * }
  */
@@ -36,12 +36,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var fs = require('fs');
 var validate = require('validate.js');
 
-var JsonUtils = require('../utils/JsonUtils.js');
-var ErrorUtils = require('../utils/ErrorUtils.js');
-var ParseClass = require('./interfaces/ParseClass.js');
-var Image = require('./Image.js').Image;
-var Video = require('./Video.js').Video;
-var Question = require('./Question.js').Question;
+var JsonUtils = require('../util/JsonUtils.js');
+var ErrorUtils = require('../util/ErrorUtils.js');
+var ParseClass = require('./interface/ParseClass.js');
+var Resource = require('./factory/Resource.js').Resource;
 
 /* private variables to this class are stored in the form of this WeakMaps
  * (where the key is the instance object "this", and the value is the value
@@ -80,12 +78,10 @@ QUESTION_TYPE_NAME // third : Question
  *
  */
 
-var Slide = (_dec = _flowRuntime2.default.annotate(_flowRuntime2.default.class('Slide', _flowRuntime2.default.method('constructor', _flowRuntime2.default.param('parameter', _flowRuntime2.default.union(_flowRuntime2.default.string(), _flowRuntime2.default.ref(Slide))), _flowRuntime2.default.return(_flowRuntime2.default.ref(Promise))), _flowRuntime2.default.method('constructorFromParseObject', _flowRuntime2.default.param('ParseObject', _flowRuntime2.default.ref('Parse')), _flowRuntime2.default.return(_flowRuntime2.default.ref(Promise))), _flowRuntime2.default.method('constructorFromJsonString', _flowRuntime2.default.param('jsonString', _flowRuntime2.default.string()), _flowRuntime2.default.return(_flowRuntime2.default.ref(Promise))), _flowRuntime2.default.method('parseJson', _flowRuntime2.default.return(_flowRuntime2.default.ref(Promise))), _flowRuntime2.default.method('validateId', _flowRuntime2.default.return(_flowRuntime2.default.ref(Promise))), _flowRuntime2.default.method('validateProjectSlideId', _flowRuntime2.default.return(_flowRuntime2.default.ref(Promise))), _flowRuntime2.default.method('validateLayeringObjects', _flowRuntime2.default.return(_flowRuntime2.default.ref(Promise))), _flowRuntime2.default.method('validateHyperlinks', _flowRuntime2.default.return(_flowRuntime2.default.ref(Promise))), _flowRuntime2.default.method('validateType', _flowRuntime2.default.return(_flowRuntime2.default.ref(Promise))), _flowRuntime2.default.method('validateResource', _flowRuntime2.default.return(_flowRuntime2.default.ref(Promise))), _flowRuntime2.default.method('validateIsEdited', _flowRuntime2.default.return(_flowRuntime2.default.ref(Promise))), _flowRuntime2.default.extends(ParseClass.ParseClass))), _dec(_class = function (_ParseClass$ParseClas) {
+var Slide = (_dec = _flowRuntime2.default.annotate(_flowRuntime2.default.class('Slide', _flowRuntime2.default.method('constructor', _flowRuntime2.default.param('parameter', _flowRuntime2.default.union(_flowRuntime2.default.string(), _flowRuntime2.default.ref(Slide))), _flowRuntime2.default.return(_flowRuntime2.default.ref(Promise))), _flowRuntime2.default.method('getObject', _flowRuntime2.default.return(_flowRuntime2.default.any())), _flowRuntime2.default.method('toJsonStringWithIds', _flowRuntime2.default.return(_flowRuntime2.default.any())), _flowRuntime2.default.method('toJsonStringWithObjects', _flowRuntime2.default.return(_flowRuntime2.default.any())), _flowRuntime2.default.method('constructorFromParseObject', _flowRuntime2.default.param('ParseObject', _flowRuntime2.default.ref('Parse')), _flowRuntime2.default.return(_flowRuntime2.default.ref(Promise))), _flowRuntime2.default.method('constructorFromJsonString', _flowRuntime2.default.param('jsonString', _flowRuntime2.default.string()), _flowRuntime2.default.return(_flowRuntime2.default.ref(Promise))), _flowRuntime2.default.method('parseJson', _flowRuntime2.default.return(_flowRuntime2.default.ref(Promise))), _flowRuntime2.default.method('validateId', _flowRuntime2.default.return(_flowRuntime2.default.ref(Promise))), _flowRuntime2.default.method('validateProjectSlideId', _flowRuntime2.default.return(_flowRuntime2.default.ref(Promise))), _flowRuntime2.default.method('validateLayeringObjects', _flowRuntime2.default.return(_flowRuntime2.default.ref(Promise))), _flowRuntime2.default.method('validateHyperlinks', _flowRuntime2.default.return(_flowRuntime2.default.ref(Promise))), _flowRuntime2.default.method('validateType', _flowRuntime2.default.return(_flowRuntime2.default.ref(Promise))), _flowRuntime2.default.method('validateResource', _flowRuntime2.default.return(_flowRuntime2.default.ref(Promise))), _flowRuntime2.default.method('validateIsEdited', _flowRuntime2.default.return(_flowRuntime2.default.ref(Promise))), _flowRuntime2.default.extends(ParseClass.ParseClass))), _dec(_class = function (_ParseClass$ParseClas) {
     _inherits(Slide, _ParseClass$ParseClas);
 
     function Slide(parameter) {
-        var _this, _ret;
-
         _classCallCheck(this, Slide);
 
         var _parameterType = _flowRuntime2.default.union(_flowRuntime2.default.string(), _flowRuntime2.default.ref(Slide));
@@ -94,10 +90,21 @@ var Slide = (_dec = _flowRuntime2.default.annotate(_flowRuntime2.default.class('
 
         _flowRuntime2.default.param('parameter', _parameterType).assert(parameter);
 
-        return _ret = _returnType.assert((_this = _possibleConstructorReturn(this, (Slide.__proto__ || Object.getPrototypeOf(Slide)).call(this, CLASS_NAME, parameter)), _this)), _possibleConstructorReturn(_this, _ret);
+        return _possibleConstructorReturn(this, (Slide.__proto__ || Object.getPrototypeOf(Slide)).call(this, CLASS_NAME, parameter));
     }
 
     _createClass(Slide, [{
+        key: 'getObject',
+        value: function getObject() {
+            return this.object;
+        }
+    }, {
+        key: 'toJsonStringWithIds',
+        value: function toJsonStringWithIds() {}
+    }, {
+        key: 'toJsonStringWithObjects',
+        value: function toJsonStringWithObjects() {}
+    }, {
         key: 'constructorFromParseObject',
         value: function constructorFromParseObject(ParseObject) {
             var _this2 = this;
@@ -176,13 +183,13 @@ var Slide = (_dec = _flowRuntime2.default.annotate(_flowRuntime2.default.class('
                 }).then(function () {
                     return _this4.validateType();
                 }).then(function () {
-                    return _this4.validateResource();
+                    console.log('validateType done');return _this4.validateResource();
                 }).then(function () {
-                    return _this4.validateIsEdited();
+                    console.log('validateResource done');return _this4.validateIsEdited();
                 }).then(function () {
                     fulfill(_this4);
                 }).catch(function (error) {
-                    reject(Error(error));
+                    console.log(error);reject(Error(error));
                 });
             }));
         }
@@ -363,6 +370,7 @@ var Slide = (_dec = _flowRuntime2.default.annotate(_flowRuntime2.default.class('
 
             var _returnType10 = _flowRuntime2.default.return(_flowRuntime2.default.ref(Promise));
 
+            console.log('validateResource called');
             return _returnType10.assert(new Promise(function (fulfill, reject) {
 
                 var resource = _this10.object[RESOURCE_FIELD];
@@ -372,49 +380,15 @@ var Slide = (_dec = _flowRuntime2.default.annotate(_flowRuntime2.default.class('
                     reject(ErrorUtils.FIELD_NOT_PRESENT_ERROR(RESOURCE_FIELD, CLASS_NAME));
                 }
 
-                // Image Resource
-                if (_this10.object[TYPE_FIELD] === IMAGE_TYPE_NAME) {
-                    new Image(JSON.stringify(resource)).then(function (result) {
-                        if (result.constructor.name === IMAGE_TYPE_NAME) {
-                            _resource.set(_this10, result);
-                            fulfill();
-                        } else {
-                            reject(ErrorUtils.TYPE_NOT_CORRECT_ERROR(RESOURCE_FIELD, CLASS_NAME, result.constructor.name, 'image'));
-                        }
-                    }, function (error) {
-                        reject(error);
-                    });
-                }
-
-                // Video Resource
-                if (_this10.object[TYPE_FIELD] === VIDEO_TYPE_NAME) {
-                    new Video(JSON.stringify(resource)).then(function (result) {
-                        if (result.constructor.name === VIDEO_TYPE_NAME) {
-                            _resource.set(_this10, result);
-                            fulfill();
-                        } else {
-                            reject(ErrorUtils.TYPE_NOT_CORRECT_ERROR(RESOURCE_FIELD, CLASS_NAME, result.constructor.name, 'Video'));
-                        }
-                    }, function (error) {
-                        reject(error);
-                    });
-                }
-
-                // Question Resource
-                if (_this10.object[TYPE_FIELD] === QUESTION_TYPE_NAME) {
-                    new Question(JSON.stringify(resource)).then(function (result) {
-                        console.log(result);
-                        if (result.constructor.name === QUESTION_TYPE_NAME) {
-                            _resource.set(_this10, result);
-                            fulfill();
-                        } else {
-                            reject(ErrorUtils.TYPE_NOT_CORRECT_ERROR(RESOURCE_FIELD, CLASS_NAME, result.constructor.name, 'Question'));
-                        }
-                    }, function (error) {
-                        console.log(error);
-                        reject(error);
-                    });
-                }
+                var resourceInstance = new Resource(JSON.stringify(resource));
+                console.log(resourceInstance);
+                console.log('hmmmmmmmmmmmmmmmmmm');
+                resourceInstance.init().then(function (result) {
+                    _resource.set(_this10, resource);
+                    fulfill();
+                }, function (error) {
+                    reject(error);
+                });
             }));
         }
     }, {
