@@ -11,3 +11,15 @@
     "URL_FIELD": "url",
     "CLASS_NAME": "Question"
 }
+
+/*{
+    "id"{string | null}: ...,
+    "type" {mcq | ...}: ...,
+    "is_compulsary" {boolean}: ...,
+    "question_string" {string}: ...,
+    "options" {String Array}: ...,
+    "answers" {Integer Array}: ...,
+    "hints" {String Array}: ...,
+    "solution" {String}: ...,
+    "is_edited" {boolean}: ...
+}*/
